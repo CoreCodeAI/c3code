@@ -8,7 +8,6 @@ import {
 } from "@t3tools/contracts";
 import { RelayOkResponse } from "@t3tools/contracts/relay";
 import * as RelayClient from "@t3tools/shared/relayClient";
-import { withRelayClientTracing } from "@t3tools/shared/relayTracing";
 import * as Cause from "effect/Cause";
 import * as Clock from "effect/Clock";
 import * as Config from "effect/Config";
@@ -45,7 +44,6 @@ import {
   RELAY_URL_SECRET,
 } from "../cloud/config.ts";
 import { relayUrlConfig } from "../cloud/publicConfig.ts";
-import * as RelayTracing from "../cloud/relayTracing.ts";
 import * as ServerConfig from "../config.ts";
 import * as ServerEnvironment from "../environment/ServerEnvironment.ts";
 import * as ExternalLauncher from "../process/externalLauncher.ts";
@@ -212,8 +210,8 @@ function formatCloudStatus(
           : !status.desired
             ? `Run \`${commands.link}\` to enable T3 Connect.`
             : publishOnly
-              ? "Start T3 to provision the environment link."
-              : "Start T3 to provision the environment link and launch its managed tunnel.";
+              ? "Start C3 to provision the environment link."
+              : "Start C3 to provision the environment link and launch its managed tunnel.";
 
   return [
     "T3 Connect",
@@ -250,7 +248,7 @@ const CLOUD_CLI_LIVE_SERVER_TIMEOUT = Duration.seconds(5);
 const confirmRelayClientInstall = (version: string) =>
   Prompt.run(
     Prompt.Confirm({
-      message: `The T3 relay client is required for T3 Connect. Download and install version ${version}?`,
+      message: `The C3 relay client is required for T3 Connect. Download and install version ${version}?`,
       initial: false,
     }),
   );
@@ -381,7 +379,7 @@ export const waitForReachability = Effect.fn("cloud.cli.wait_for_reachability")(
   yield* Console.error(
     formatAlertBox(
       last === null
-        ? "✕ Could not check T3 Connect\n  The T3 server on this machine did not answer.\n  Fix: run `t3 service status`, then `t3 connect status`."
+        ? "✕ Could not check T3 Connect\n  The C3 server on this machine did not answer.\n  Fix: run `t3 service status`, then `t3 connect status`."
         : formatReachabilityFailure(last),
     ),
   );
@@ -428,7 +426,6 @@ const unlinkRelayEnvironment = Effect.fn("cloud.cli.unlink_relay_environment")(f
     httpClient.execute,
     Effect.flatMap(filterRelayResponse),
     Effect.flatMap(HttpClientResponse.schemaBodyJson(RelayOkResponse)),
-    withRelayClientTracing,
   );
   return response.ok
     ? ({ status: "revoked" } satisfies RelayUnlinkResult)
@@ -548,7 +545,6 @@ export const runCloudCommand = Effect.fn("cloud.cli.run_cloud_command")(function
     RelayClient.layerCloudflared({ baseDir: config.baseDir }),
     EnvironmentAuth.layerRuntime,
     CliService.layer(config),
-    RelayTracing.layerHeadlessRelayClient.pipe(Layer.provide(ManagedPolicy.layer)),
   ).pipe(
     Layer.provideMerge(FetchHttpClient.layer),
     Layer.provideMerge(ServerConfig.layer(config)),
@@ -655,9 +651,9 @@ const connectLinkCommand = Command.make("link", {
             ? "publish agent activity (no managed tunnel)"
             : "make this machine reachable";
           const next = Option.isSome(running)
-            ? `A T3 Code server is already running. Restart it to ${purpose}: run \`${yield* resolveHostCliHint("service restart", flags.baseDir)}\` for the background service, or stop the server and start it again.`
+            ? `A C3 Code server is already running. Restart it to ${purpose}: run \`${yield* resolveHostCliHint("service restart", flags.baseDir)}\` for the background service, or stop the server and start it again.`
             : flags.publishOnly
-              ? `Start T3 to ${purpose}.`
+              ? `Start C3 to ${purpose}.`
               : `Start the server with \`${yield* resolveHostCliHint("serve", flags.baseDir)}\` to ${purpose}.`;
           yield* Console.log(`✓ Authorized${connectedAs(linked.identity)}\n\nNext\n  ${next}`);
         }
@@ -790,13 +786,13 @@ const connectPublishCommand = Command.make("publish", {
         // A desired managed link already covers publishing and must not be downgraded.
         if (yield* CliState.readCliDesiredCloudLink) {
           yield* Console.log(
-            "A T3 Connect link is already pending. Start T3 to finish provisioning it; publishing starts once it links.",
+            "A T3 Connect link is already pending. Start C3 to finish provisioning it; publishing starts once it links.",
           );
           return;
         }
         yield* CliState.setCliDesiredCloudLink(true, "publish_only");
         yield* Console.log(
-          "Restart T3 to finish authorizing this environment to publish (no managed tunnel is created).",
+          "Restart C3 to finish authorizing this environment to publish (no managed tunnel is created).",
         );
       }),
     ),

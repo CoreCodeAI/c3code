@@ -123,6 +123,13 @@ const foldProviderInstanceEnabledFlags = (settings: ServerSettings): ServerSetti
   };
 };
 
+// Agent feedback only ever sent reports to the T3 team, and C3 Code collects nothing, so the
+// feature stays off whatever the settings file or a client asks for.
+const withAgentFeedbackOff = (settings: ServerSettings): ServerSettings =>
+  settings.agentFeedback.mode === "off"
+    ? settings
+    : { ...settings, agentFeedback: { mode: "off" } };
+
 const normalizeServerSettings = (
   settings: ServerSettings,
 ): Effect.Effect<ServerSettings, ServerSettingsError> =>
@@ -408,8 +415,10 @@ export const readServerSettingsFromDisk = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const { settings: managed } = yield* ManagedPolicy.ManagedPolicy;
   const raw = yield* fs.readFileString(settingsPath).pipe(Effect.option);
-  return managed.applyLocks(
-    Option.isNone(raw) ? managed.defaults : decodeSettingsFile(raw.value, managed).settings,
+  return withAgentFeedbackOff(
+    managed.applyLocks(
+      Option.isNone(raw) ? managed.defaults : decodeSettingsFile(raw.value, managed).settings,
+    ),
   );
 }).pipe(Effect.withSpan("ServerSettings.readServerSettingsFromDisk"));
 const LegacyProviderSettingsJson = fromLenientJson(
@@ -736,9 +745,11 @@ const make = Effect.gen(function* () {
   } = yield* ManagedPolicy.ManagedPolicy;
   // Locks are laid over every settings value that leaves this service, never persisted.
   const toEffective = (settings: ServerSettings) =>
-    resolveTextGenerationProvider(
-      managedProviders.applyLimits(managed.applyLocks(settings)),
-      managedProviders.isDriverAllowed,
+    withAgentFeedbackOff(
+      resolveTextGenerationProvider(
+        managedProviders.applyLimits(managed.applyLocks(settings)),
+        managedProviders.isDriverAllowed,
+      ),
     );
   const writeSemaphore = yield* Semaphore.make(1);
   const cacheKey = "settings" as const;

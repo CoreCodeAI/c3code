@@ -423,7 +423,7 @@ describe("t3 pair", () => {
         const rendered = String(
           typeof error === "object" && error !== null && "cause" in error ? error.cause : error,
         );
-        assert.include(rendered, "No running T3 Code server found.");
+        assert.include(rendered, "No running C3 Code server found.");
         for (const subcommand of ["serve", "connect"]) {
           const { command } = yield* resolveHostCliCommand(subcommand, ["--base-dir", baseDir]);
           assert.include(rendered, `\`${command}\``);
@@ -463,7 +463,7 @@ describe("t3 pair", () => {
           ),
         );
 
-        assert.include(String(error), "No running T3 Code server found.");
+        assert.include(String(error), "No running C3 Code server found.");
         assert.notInclude(String(error), sharedHome);
         assert.deepEqual(NodeFS.readdirSync(NodePath.join(sharedHome, "userdata")), [
           "server-runtime.json",
@@ -498,10 +498,11 @@ describe("t3 pair", () => {
           ]);
           assert.isTrue(Exit.isFailure(exit));
           if (Exit.isFailure(exit)) {
-            assert.include(
-              String(Cause.squash(exit.cause)),
-              `t3@0.0.45 pair --base-dir ${baseDir}`,
-            );
+            // C3 Code is not on npm, so the fix installs the server's release, then pairs.
+            const message = String(Cause.squash(exit.cause));
+            assert.match(message, /T3CODE_VERSION="?0\.0\.45"?/);
+            assert.include(message, `t3 pair --base-dir ${baseDir}`);
+            assert.notInclude(message, "npx t3");
           }
         }),
       "127.0.0.1",

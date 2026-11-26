@@ -1983,7 +1983,7 @@ describe("UsageService", () => {
     }),
   );
 
-  it.effect("reads the Cursor account of an API key or T3 sign-in instead of a CLI login", () =>
+  it.effect("reads the Cursor account of an API key or C3 sign-in instead of a CLI login", () =>
     Effect.gen(function* () {
       const { settings, home } = yield* setup;
       const signIn = new TextEncoder().encode(

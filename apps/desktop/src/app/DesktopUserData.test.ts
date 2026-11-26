@@ -7,7 +7,7 @@ import * as PlatformError from "effect/PlatformError";
 
 import { clearStaleGpuCaches, resolveUserDataPath } from "./DesktopUserData.ts";
 
-it.effect.each(["t3code", "T3 Code (Alpha)"])(
+it.effect.each(["C3 Code (Alpha)"])(
   "preserves Windows credential keys from %s without copying browser databases",
   (sourceName) =>
     Effect.gen(function* () {
@@ -15,9 +15,9 @@ it.effect.each(["t3code", "T3 Code (Alpha)"])(
       const path = yield* Path.Path;
       const directory = yield* fs.makeTempDirectoryScoped({ prefix: "t3-v2-profile-" });
       const source = path.join(directory, sourceName);
-      const destination = path.join(directory, "t3code-v2");
+      const destination = path.join(directory, "c3code");
       const state = '{"os_crypt":{"encrypted_key":"test-encrypted-key"}}';
-      yield* fs.makeDirectory(path.join(directory, "T3 Code (Alpha)"), { recursive: true });
+      yield* fs.makeDirectory(path.join(directory, "C3 Code (Alpha)"), { recursive: true });
       yield* fs.makeDirectory(path.join(source, "IndexedDB"), { recursive: true });
       yield* fs.writeFileString(path.join(source, "Local State"), state);
       yield* fs.writeFileString(path.join(source, "IndexedDB", "LOCK"), "V1 owns this database");
@@ -40,6 +40,23 @@ it.effect.each(["t3code", "T3 Code (Alpha)"])(
         "existing V2 state",
       );
     }).pipe(Effect.scoped, Effect.provide(NodeServices.layer)),
+);
+
+it.effect.each(["t3code", "t3code-v2"])("never reads T3 Code's %s profile", (sourceName) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const directory = yield* fs.makeTempDirectoryScoped({ prefix: "c3-profile-" });
+    yield* fs.makeDirectory(path.join(directory, sourceName), { recursive: true });
+    yield* fs.writeFileString(path.join(directory, sourceName, "Local State"), "T3 Code state");
+    const userDataPath = yield* resolveUserDataPath({
+      appDataDirectory: directory,
+      isDevelopment: false,
+      platform: "win32",
+    });
+    assert.equal(userDataPath, path.join(directory, "c3code"));
+    assert.isFalse(yield* fs.exists(path.join(directory, "c3code", "Local State")));
+  }).pipe(Effect.scoped, Effect.provide(NodeServices.layer)),
 );
 
 const gpuCacheDirectories = [
@@ -98,7 +115,7 @@ it.effect("keeps GPU caches built on the first launch of a fresh install", () =>
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const appData = yield* fs.makeTempDirectoryScoped({ prefix: "t3-v2-fresh-" });
-    const userDataPath = path.join(appData, "t3code-v2");
+    const userDataPath = path.join(appData, "c3code");
 
     yield* clearStaleGpuCaches({ userDataPath, electronVersion: "44.10.1" });
     yield* fs.makeDirectory(path.join(userDataPath, "GPUCache"));

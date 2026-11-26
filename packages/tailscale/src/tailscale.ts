@@ -13,7 +13,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/process";
 export const DEFAULT_TAILSCALE_SERVE_PORT = 443;
 /**
  * Bounds `tailscale status` and `tailscale debug prefs`. Allows the 1.8-2.6 s
- * `tailscale status` has been measured at when T3 Code spawns it on Windows.
+ * `tailscale status` has been measured at when C3 Code spawns it on Windows.
  * A CLI that never answers takes longer than this to fail, because the kill
  * that follows the timeout also takes time (`taskkill` on Windows).
  */
@@ -614,7 +614,7 @@ const dialedHostPort = (url: string) => {
 
 const reachesTarget = (url: string, target: { readonly host: string; readonly port: number }) => {
   const dialed = dialedHostPort(url);
-  // Go reads the port as a decimal number, so 03773 is 3773.
+  // Go reads the port as a decimal number, so 03873 is 3873.
   if (dialed === undefined || Number(dialed.port) !== target.port) return undefined;
   const reach = reaches(dialed.host, target.host);
   return reach === undefined ? undefined : { reach, hostname: dialed.host };

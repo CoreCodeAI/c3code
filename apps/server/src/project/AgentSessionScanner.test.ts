@@ -991,7 +991,7 @@ it.layer(NodeServices.layer)("AgentSessionScanner", (it) => {
       }),
     );
 
-    it.effect("excludes the home directory, temporary root, and T3 data directory", () =>
+    it.effect("excludes the home directory, temporary root, and C3 data directory", () =>
       Effect.gen(function* () {
         const path = yield* Path.Path;
         const claudeHomePath = yield* makeTempDir("t3code-claude-home-");
@@ -2098,7 +2098,7 @@ it.layer(NodeServices.layer)("AgentSessionScanner", (it) => {
     );
 
     it.effect.each([{ layout: "plain" }, { layout: "symlinked into Downloads" }] as const)(
-      "does not file T3 sandbox chats under the Codex project they were moved into ($layout base dir)",
+      "does not file C3 sandbox chats under the Codex project they were moved into ($layout base dir)",
       ({ layout }) =>
         Effect.gen(function* () {
           const fileSystem = yield* FileSystem.FileSystem;
@@ -2132,7 +2132,7 @@ it.layer(NodeServices.layer)("AgentSessionScanner", (it) => {
             {
               id: "019a5f00-0000-7000-8000-00000000010b",
               cwd: sandboxDir,
-              message: "Started in a T3 worktree",
+              message: "Started in a C3 worktree",
             },
           ];
           const rolloutPaths: Array<string> = [];

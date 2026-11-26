@@ -115,7 +115,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NetService.layer))("t3 uninstall com
       label: "leaves a service that serves another home by the time it is removed",
       otherFromRead: 2,
       removed: [],
-      output: "Left the background service: it now serves another T3 home.",
+      output: "Left the background service: it now serves another C3 home.",
     },
   ])("$label", (input) =>
     Effect.gen(function* () {
@@ -133,7 +133,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NetService.layer))("t3 uninstall com
               current: true,
               installedBaseDir: "/home/me/.t3",
               ...(++reads >= input.otherFromRead ? { otherBaseDir: "/home/me/.t3" } : {}),
-              unitPath: "/home/me/.config/systemd/user/t3code.service",
+              unitPath: "/home/me/.config/systemd/user/c3code.service",
               logPath: "/home/me/.t3/userdata/logs/boot-service.log",
             })),
             withStopped: (operation) => operation,

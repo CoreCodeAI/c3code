@@ -1,7 +1,7 @@
-# T3 Code Mobile
+# C3 Code Mobile
 
 > [!NOTE]
-> To install the released app from the App Store or Google Play, see [Mobile app](../../docs/user/install.md#mobile-app). This guide covers building it from source.
+> C3 Code is not in the App Store or Google Play; the apps there are T3 Code. This guide covers building it from source ([Mobile app](../../docs/user/install.md#mobile-app) has the short version).
 
 ## Quickstart
 
@@ -10,9 +10,9 @@
 
 This app has three variants:
 
-- `development`: Expo dev client, installable side-by-side as `T3 Code Dev`
-- `preview`: persistent internal preview build, installable side-by-side as `T3 Code Preview`
-- `production`: store/release build as `T3 Code`
+- `development`: Expo dev client, installable side-by-side as `C3 Code Dev`
+- `preview`: persistent internal preview build, installable side-by-side as `C3 Code Preview`
+- `production`: store/release build as `C3 Code`
 
 Run commands from `apps/mobile`.
 

@@ -3,7 +3,7 @@
 Report vulnerabilities to [security@t3.codes](mailto:security@t3.codes). The
 [security policy](.github/SECURITY.md) covers disclosure and safe harbor.
 
-The rest of this file is for agents and maintainers auditing T3 Code or triaging
+The rest of this file is for agents and maintainers auditing C3 Code or triaging
 reports. It defines who is trusted with what, which boundaries a real finding
 crosses, and what is intended. The reasoning behind each boundary lives in
 [environment auth](docs/internals/04_environment-auth.md),
@@ -118,7 +118,7 @@ revocation and ceilings hold, not what a full-scope session can do once issued.
   Choosing a host does not make it trusted: what a configured endpoint can do
   to the server or its clients stays in scope.
 - An attacker already running code as the same OS user. That includes one whose
-  only move is to rewrite files that user owns outside a workspace: T3 Code's
+  only move is to rewrite files that user owns outside a workspace: C3 Code's
   data directory, its installed helpers, the user's own config. Another OS
   account on the same machine is not this attacker; neither is repository
   content or an agent below full access, which write inside a workspace without

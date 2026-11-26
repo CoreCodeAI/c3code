@@ -112,15 +112,15 @@ export type PromptLinkError =
 function englishPromptLinkError(error: PromptLinkError): string {
   switch (error) {
     case "prompt-too-long":
-      return `This prompt is longer than ${PROMPT_LINK_MAX_PROMPT_LENGTH.toLocaleString("en-US")} characters, so T3 Code did not open it.`;
+      return `This prompt is longer than ${PROMPT_LINK_MAX_PROMPT_LENGTH.toLocaleString("en-US")} characters, so C3 Code did not open it.`;
     case "prompt-only-hidden":
-      return "This prompt had only hidden characters, so it may be malicious. T3 Code did not open it.";
+      return "This prompt had only hidden characters, so it may be malicious. C3 Code did not open it.";
     case "unreadable-pull-request":
-      return "This link names a pull request T3 Code cannot read.";
+      return "This link names a pull request C3 Code cannot read.";
     case "missing-prompt":
       return "This link has no prompt.";
     case "unreadable-repository":
-      return "This link names a repository T3 Code cannot read.";
+      return "This link names a repository C3 Code cannot read.";
   }
 }
 
@@ -194,16 +194,17 @@ export function buildNewThreadLink(input: {
   readonly repository?: PromptLinkRepository | null;
   readonly provider?: string | null;
   readonly model?: string | null;
-  readonly origin?: string;
+  /** A hosted app to open the link on. Without one it is a `t3code://` link to the app itself. */
+  readonly origin?: string | undefined;
 }): string {
-  const url = new URL("/new", input.origin ?? DEFAULT_HOSTED_APP_URL);
+  const url = new URL("/new", input.origin ?? "https://app.invalid");
   url.searchParams.set("prompt", input.prompt);
   if (input.repository) {
     url.searchParams.set("repo", `${input.repository.owner}/${input.repository.name}`);
   }
   if (input.provider) url.searchParams.set("provider", input.provider);
   if (input.provider && input.model) url.searchParams.set("model", input.model);
-  return url.toString();
+  return input.origin === undefined ? promptLinkDeepLink(`/new${url.search}`) : url.toString();
 }
 
 const APP_SCHEME = /^t3code(?:-[a-z]+)?:$/;

@@ -121,7 +121,7 @@ export function refuseAgentModePick(input: {
     : Effect.fail(
         new OrchestratorMcpFailure({
           code: "runtime_mode_escalation_denied",
-          message: `Option ${pick.id} sets the agent's own mode, which T3 cannot hold to ${input.callerRuntimeMode}. Only a full-access caller may set it; leave it out.`,
+          message: `Option ${pick.id} sets the agent's own mode, which C3 cannot hold to ${input.callerRuntimeMode}. Only a full-access caller may set it; leave it out.`,
         }),
       );
 }

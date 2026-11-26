@@ -1104,7 +1104,7 @@ it.layer(layerGitManagerTest)("GitManager", (it) => {
         ),
       ).toEqual([]);
 
-      // A remote added outside T3 Code shows on the next read.
+      // A remote added outside C3 Code shows on the next read.
       yield* runGit(repoDir, [
         "remote",
         "add",
@@ -1172,7 +1172,7 @@ it.layer(layerGitManagerTest)("GitManager", (it) => {
     }),
   );
 
-  it.effect("a git read in flight during a T3 git action does not outlive it", () =>
+  it.effect("a git read in flight during a C3 git action does not outlive it", () =>
     Effect.gen(function* () {
       const repoDir = yield* makeTempDir("t3code-git-manager-");
       yield* initRepo(repoDir);

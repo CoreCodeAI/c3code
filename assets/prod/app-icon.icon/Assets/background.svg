@@ -1,0 +1,19 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="coral" x1="20" y1="0" x2="108" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F09A6B"/>
+      <stop offset="1" stop-color="#C2502B"/>
+    </linearGradient>
+    <radialGradient id="light" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(24 14) rotate(52) scale(104)">
+      <stop stop-color="#FFF8F2" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#FFF8F2" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="tile">
+      <rect width="128" height="128" rx="10"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="128" height="128" fill="url(#coral)"/>
+    <rect width="128" height="128" fill="url(#light)"/>
+  </g>
+</svg>

@@ -1479,7 +1479,7 @@ describe("AcpRegistryAdapterV2", () => {
     }).pipe(Effect.provide(layerTest)),
   );
 
-  it.effect("gives HTTP-capable agents T3's MCP server over HTTP", () =>
+  it.effect("gives HTTP-capable agents C3's MCP server over HTTP", () =>
     Effect.gen(function* () {
       const selfInvocation = yield* resolveSelfInvocation();
       const mockAgentPath = yield* (yield* Path.Path).fromFileUrl(

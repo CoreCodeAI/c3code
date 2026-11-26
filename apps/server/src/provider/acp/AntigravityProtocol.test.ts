@@ -793,7 +793,7 @@ describe("Antigravity served reads", () => {
       },
     }).update;
 
-  it("credits a read T3 served before the agent announced it", () => {
+  it("credits a read C3 served before the agent announced it", () => {
     const reads = makeAntigravityReadRepair();
     reads.attempted("/repo/a.ts", true);
     const announced = reads.repair({

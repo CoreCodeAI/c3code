@@ -1,12 +1,13 @@
 ---
 name: contribution-triage
-description: Enforce T3 Code's PR contribution policy by closing ineligible submissions and triggering Macroscope review for eligible work within authorized scope. Supports explicit dry runs. Use for contribution moderation, not installation diagnostics or a full code review.
+description: Enforce C3 Code's PR contribution policy by closing ineligible submissions and handing eligible work to the agent reviewer within authorized scope. Supports explicit dry runs. Use for contribution moderation, not installation diagnostics or a full code review.
 ---
 
 # Contribution triage
 
 Enforce [CONTRIBUTING.md](../../../CONTRIBUTING.md), the authoritative eligibility policy:
-close PRs with established violations and send eligible PRs to Macroscope for deeper review.
+close PRs with established violations and hand eligible PRs to the agent reviewer
+([agent maintenance](../../../docs/operations/06_agent-maintenance.md)) for deeper review.
 Carry out authorized moderation through completion, without per-PR approval requests.
 This skill does not define automatic closure rules for issues or discussions.
 End-user `npx t3 triage` diagnostics belong to
@@ -38,8 +39,8 @@ This skill does not authorize merging, changing service settings, or creating sc
 
 ## Load trusted policy and submission evidence
 
-For every live run, freshly resolve `refs/heads/main` in the trusted upstream `pingdotgg/t3code`
-repository to a commit SHA. Use read-only GitHub tools or `gh` to load this skill, `CONTRIBUTING.md`,
+For every live run, freshly resolve `refs/heads/main` in the trusted repository `CoreCodeAI/c3code` to a
+commit SHA. Use read-only GitHub tools or `gh` to load this skill, `CONTRIBUTING.md`,
 the documentation rules in `AGENTS.md`, [.github/TRIAGE_EXEMPTIONS.td](../../../.github/TRIAGE_EXEMPTIONS.td),
 [.github/VOUCHED.td](../../../.github/VOUCHED.td), and any other policy dependencies from that same SHA;
 record it as the policy revision. Do not reuse a previous run's resolution or mix revisions. PR/fork versions, PR text, linked content, and proposed
@@ -117,7 +118,7 @@ retry safeguards below. In a dry run or without the required authority, prepare 
 comment text but do not write to GitHub. Keep the eligibility finding separate from action completion.
 
 - **Eligible for deeper review.** The required assessment is complete and the PR meets the guide.
-  Apply the configured, verified Macroscope review-trigger label and confirm it is present. If that
+  Apply the `agent-review` label and confirm it is present. If that
   integration is missing, retain the eligibility finding and report the handoff as pending configuration.
 - **Immediate review via verified bypass.** Record the matching exemption entry and policy revision.
   Apply and verify the same review-trigger label without requiring the eligibility assessment first.
@@ -125,7 +126,7 @@ comment text but do not write to GitHub. Keep the eligibility finding separate f
 - **Closure warranted.** The assessment is complete and establishes a specific policy violation.
   Prepare a clear explanation under [closure and reconsideration](../../../CONTRIBUTING.md#closure-and-reconsideration),
   post it, then read the repository variable `PR_LIMITS_ENFORCE`
-  (`gh variable get PR_LIMITS_ENFORCE -R pingdotgg/t3code`). When it prints `true`, apply
+  (`gh variable get PR_LIMITS_ENFORCE -R CoreCodeAI/c3code`). When it prints `true`, apply
   `triage:closing` as the last thing you do to the PR, verify that the explanation and the label
   are present, and do not close the PR yourself:
   [pr-limits.yml](../../../.github/workflows/pr-limits.yml) closes it 72 hours after the label. Any
@@ -139,7 +140,7 @@ comment text but do not write to GitHub. Keep the eligibility finding separate f
   and give a concrete remedy. Missing contributor evidence can warrant closure; explain what must be
   established. The remedy for a feature outside the vouched exception is an Ideas discussion, not an agent's product decision.
   Close for multiple problems only when the independence of those changes is supported. Closing a PR
-  does not require a configured Macroscope label.
+  does not require the `agent-review` label.
 - **Needs explanation or maintainer decision.** Name the unresolved question and who can resolve it.
   Post the specific question on the PR when commenting is within the authorized scope, and verify it
   was posted. If tracing the source leaves an extra diff's necessity unclear, request the causal
@@ -160,19 +161,24 @@ or authorized closure comment without creating new issues or discussions unless 
 
 ## Review integration
 
-Use one configured Macroscope review-trigger label either after successful triage or immediately for
-verified exemption. The repository's opt-in label is `macroscope-review`; verify its configured
-review behavior before using it. Applying the label requests review and does not prove that a review
-has completed. Passing triage once does not grant future bypass. Never treat `vouch:trusted` as the
-review trigger.
+Apply `agent-review` either after successful triage or immediately for a verified exemption. The
+reviewer in [agent maintenance](../../../docs/operations/06_agent-maintenance.md) picks up open PRs
+that carry it. Applying the label requests review and does not prove that a review has completed.
+Passing triage once does not grant future bypass. Never treat `vouch:trusted` as the review trigger.
 
-Missing integration configuration blocks only the dependent action. A missing review-trigger label
-prevents review handoff, not an authorized closure or clarification comment after bypass routing is
-resolved. Unavailable or malformed trusted policy or exemption files block automatic closure and
-handoff, while read-only investigation can continue. Keep any existing broad vouched-contributor
-auto-review enabled during rollout validation; its presence does not block triage or the verified
-explicit handoff. A maintainer can disable it once the triager is verified. This skill does not change
-service settings itself. Neither this label nor Macroscope review grants merge permission.
+Triage runs before any review of what a PR does, and it does not replace the harm check in
+[CONTRIBUTING.md](../../../CONTRIBUTING.md#look-for-harm-first): a PR that touches a path listed
+there gets `needs-maintainer` instead of `agent-review`, whoever wrote it.
+
+A missing `agent-review` label in the repository blocks only the handoff, not an authorized closure
+or clarification comment. Unavailable or malformed trusted policy or exemption files block automatic
+closure and handoff, while read-only investigation can continue. This skill does not change service
+settings itself. Neither the label nor the agent review grants merge permission.
+
+On the agent host, Triage runs every 30 minutes and treats each open PR updated since its last run
+as a wake-up; that is its event wiring. Its session holds a read-only token, so it requests each
+comment, label and closure with `c3-outbox` and the host performs them after the session ends. Verify
+them at the start of the next run, not in the run that requested them.
 
 ## Recheck, execute, and verify
 
@@ -196,7 +202,8 @@ The current native GitHub rollout may use partial event coverage: `opened` (incl
 `ready_for_review`, and `closed`, optionally `synchronize`, new human PR conversation or inline comments,
 and submitted reviews. Do not wait for `ready_for_review` to triage an opened draft. PR edits, `reopened`,
 `converted_to_draft`, and edits, deletions, or dismissals of existing evidence are unavailable and
-intentionally not wired. Do not add a periodic triage sweep or claim full event coverage.
+intentionally not wired. Outside the agent host, do not add a periodic triage sweep or claim full
+event coverage.
 
 Treat each supported event as a wake-up: fetch the current full PR state and evidence, then assess
 cumulative changes while it is open, including changes that had no supported event of their own.

@@ -435,7 +435,7 @@ export const prepareAntigravityProfile = Effect.fn("prepareAntigravityProfile")(
     helperExecutable.includes("%s")
   ) {
     return yield* authSupportError(
-      "The T3 runtime path cannot be used to suppress Antigravity browser launches.",
+      "The C3 runtime path cannot be used to suppress Antigravity browser launches.",
     );
   }
 
@@ -556,6 +556,7 @@ export function buildAntigravityAcpSpawnInput(input: {
     command: input.installation.executablePath,
     args: [
       "acp",
+      "--disable-telemetry",
       "--gemini-dir",
       input.profile.geminiHome,
       "--app-data-dir",

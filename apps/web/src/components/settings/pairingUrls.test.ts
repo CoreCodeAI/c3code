@@ -21,4 +21,12 @@ describe("settings pairing URL helpers", () => {
       "https://preview.t3.codes/pair?host=https%3A%2F%2Fhost.tailnet.example.ts.net%3A3773#token=PAIRCODE",
     );
   });
+
+  it("leaves HTTPS endpoints to their own pairing URL without a hosted app", () => {
+    vi.stubEnv("VITE_HOSTED_APP_URL", "");
+
+    expect(
+      resolveHostedPairingUrl("https://host.tailnet.example.ts.net:3773", "PAIRCODE"),
+    ).toBeNull();
+  });
 });

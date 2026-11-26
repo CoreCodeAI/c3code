@@ -46,8 +46,11 @@ const hostedSegment = (id: string) =>
     (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`,
   );
 
-/** Opens the thread from anywhere: the hosted app offers the desktop app, the mobile app, or itself. */
-export function hostedThreadLink(ref: ScopedThreadRef, origin = DEFAULT_HOSTED_APP_URL): string {
+/**
+ * Opens the thread from anywhere through `origin`, a hosted app, which offers the desktop app, the
+ * mobile app, or itself. C3 Code runs none, so callers pass one only when a build configures it.
+ */
+export function hostedThreadLink(ref: ScopedThreadRef, origin: string): string {
   const path = `/threads/${hostedSegment(ref.environmentId)}/${hostedSegment(ref.threadId)}`;
   return new URL(path, origin).toString();
 }
@@ -144,12 +147,16 @@ export function formatThreadLink(ref: ThreadLink, label?: string): string {
   return cleaned ? `[${cleaned}](${destination})` : `<${href}>`;
 }
 
-/** What a person copies out of T3 Code: a Markdown link that opens the thread anywhere. */
+/**
+ * What a person copies out of C3 Code: a Markdown link on `origin`, a hosted app, that opens the
+ * thread anywhere, or without one a thread link that any C3 Code client opens.
+ */
 export function formatHostedThreadLink(
   ref: ScopedThreadRef,
   label: string,
   origin?: string,
 ): string {
+  if (origin === undefined) return formatThreadLink(ref, label);
   const href = hostedThreadLink(ref, origin);
   const cleaned = linkLabel(label);
   return cleaned ? `[${cleaned}](${href})` : href;

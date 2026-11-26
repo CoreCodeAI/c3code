@@ -1,54 +1,62 @@
-# T3 Code
+# C3 Code
 
-T3 Code is a minimal GUI for coding agents. A Node WebSocket server wraps provider CLIs and agents (Codex, Claude Code, Cursor, Grok, OpenCode, Antigravity, Kiro, Pi, Muse Code, fx) and serves web, desktop, and mobile clients.
+C3 Code is a minimal GUI for coding agents. A Node WebSocket server wraps provider CLIs and agents (Codex, Claude Code, Cursor, Grok, OpenCode, Antigravity, Kiro, Pi, Muse Code, fx) and serves web, desktop, and mobile clients.
 
-You can think of T3 Code as an open source "bring-your-own-subscription" alternative to apps like Claude Desktop, Codex App, Cursor Glass and Conductor.
+You can think of C3 Code as an open source "bring-your-own-subscription" alternative to apps like Claude Desktop, Codex App, Cursor Glass and Conductor.
 
-## What makes T3 Code special?
+## This is a fork
 
-We have over 500,000 users who love T3 Code. It's important we maintain the things they love as we continue to iterate on the product. Here's a brief list of the things we can never compromise on.
+C3 Code is CoreCode's unofficial fork of [T3 Code](https://github.com/pingdotgg/t3code), not affiliated with T3 Tools, Inc. Three rules bind every change, and `scripts/check-fork-invariants.sh` checks them in CI:
+
+- **No data collection.** Never add analytics, crash or error reporting, usage events, install or device IDs, or a call home. A new network call is allowed only when the user asked for it or it serves the user directly, and it must be listed in [docs/user/privacy.md](docs/user/privacy.md).
+- **No T3 branding.** Use the C3 name and mark. "T3 Code" stays only where a fact is about the upstream project or its trademarks. C3 Code installs beside T3 Code with its own app id (`live.corecode.c3code`), home (`~/.c3`), port (3873) and service names; `scripts/check-fork-invariants.sh` fails if T3's return. The `t3` command, the `t3code://` scheme, `T3CODE_*` variables, `@t3tools/*` packages and the per-worktree dev `.t3` stay, so upstream merges stay small.
+- **Links stay here.** Install scripts, releases, update checks, issues, and docs point at `CoreCodeAI/c3code`, never at T3's site, npm package, or store listings.
+
+## What makes C3 Code special?
+
+C3 Code inherits what T3 Code's users love, and it's important we keep those things as we iterate. Here's a brief list of the things we can never compromise on.
 
 ### 1. Open at the core
 
-T3 Code is truly open. We share our roadmap, we share how we think about things, and of course we share all our code. A large number of our users run forks (our MIT license covers source code only, not T3 Code's trademarks or branding; see [TRADEMARK.md](TRADEMARK.md)). We work in the open, and should strive to stay that way.
+C3 Code is truly open. We share our roadmap, we share how we think about things, and of course we share all our code. A large number of our users run forks (our MIT license covers source code only, not T3 Code's trademarks or branding; see [TRADEMARK.md](TRADEMARK.md)). We work in the open, and should strive to stay that way.
 
 ### 2. Performance without compromise
 
-Lots of apps have gotten bogged down with bad tech decisions and "slop". We have not, and we're proud of the performance of T3 Code. We regularly audit for performance regressions, often caused by sending too much data over websockets, css animations causing gpu spikes, lists being hard to render, and more. Make sure all changes are considerate of performance impact.
+Lots of apps have gotten bogged down with bad tech decisions and "slop". We have not, and we're proud of the performance of C3 Code. We regularly audit for performance regressions, often caused by sending too much data over websockets, css animations causing gpu spikes, lists being hard to render, and more. Make sure all changes are considerate of performance impact.
 
 ### 3. Remote ready
 
-The architecture of T3 Code's websocket layer (`t3`) enables a lot of awesome remote features. These have become core to the product. Whether users are connecting directly over their local network, using Tailscale, or leaning in fully with T3 Connect (our tunnel solution, also in this repo), we need to make sure new features are properly supported.
+The architecture of C3 Code's websocket layer (`t3`) enables a lot of awesome remote features. These have become core to the product. Whether users are connecting directly over their local network, over SSH or Tailscale, or through T3 Connect against a relay they host themselves (the tunnel code is in this repo; C3 Code builds ship with it off), we need to make sure new features are properly supported.
 
 ### 4. Multi-surface
 
-T3 Code has 3 key app surfaces: **web**, **desktop**, and **mobile**.
+C3 Code has 3 key app surfaces: **web**, **desktop**, and **mobile**.
 
-**Web** is kind of two surfaces, as we have the public facing "app.t3.codes" as well as locally hosting the web app through the `t3` command. Both need to be supported by all new features where reasonable.
+**Web** is served by the user's own server through the `t3` command or the desktop app. C3 Code runs no hosted web app; a build can opt into one its builder hosts, so new features must not assume either.
 
-**Desktop** is the main surface most users install first. It's a full Electron app that bundles the server runner as well. The desktop app can also be used as the host server, allowing remote connections from app.t3.codes or the mobile app.
+**Desktop** is the main surface most users install first. It's a full Electron app that bundles the server runner as well. The desktop app can also be used as the host server, allowing remote connections from a browser or the mobile app.
 
-**Mobile** is a React Native app for both iOS and Android, available on the App Store and Google Play. The mobile app allows for connecting to any T3 Code server to control work remotely.
+**Mobile** is a React Native app for both iOS and Android, built from this repo (C3 Code has no store listing). The mobile app allows for connecting to any C3 Code server to control work remotely.
 
-## A note from Theo
+## How we build
 
-I like ambitious ideas, simple systems, and software that feels obvious. Do not preserve complexity just because it already exists. Do not introduce machinery because it looks architecturally impressive. Understand the real constraint, then fight for the smallest model that makes the correct behavior unsurprising.
+Prefer ambitious ideas, simple systems, and software that feels obvious. Do not preserve complexity just because it already exists. Do not introduce machinery because it looks architecturally impressive. Understand the real constraint, then fight for the smallest model that makes the correct behavior unsurprising.
 
 Channel both "measure twice, cut once" and "yagni". Fight scope creep. Try to honor the dev's intent in both a minimal and realistic fashion.
 
 The rest of this document is meant to help you navigate the codebase and make changes effectively. Think of these instructions less as "hard rules", more as "good defaults". The developer's preferences should be able to override anything here.
 
-Of note: Most T3 Code contributions will come from T3 Code itself, often controlled remotely. This means you should be careful about accessing data, killing dev servers, and other things that may damage the T3 Code instance that the contributor is using.
+Of note: Most C3 Code contributions will come from C3 Code itself, often controlled remotely. This means you should be careful about accessing data, killing dev servers, and other things that may damage the C3 Code instance that the contributor is using.
 
 ## Terminology
 
-- **you** = the agent reading this file. **we / us / maintainers** = Theo, Julius, and the people building T3 Code. **user** = person driving coding agents in T3 Code. **agent** = coding agent running inside T3 Code.
+- **you** = the agent reading this file. **we / us / maintainers** = CoreCode's maintainers and the agents that maintain C3 Code with them. **user** = person driving coding agents in C3 Code. **agent** = coding agent running inside C3 Code.
 - Domain terms (environment, project, thread, turn, provider, checkpoint, etc.): [00_glossary.md](docs/internals/00_glossary.md).
 
 ## The three ways to hurt yourself
 
 1. **Killing by pattern.** Never `pkill -f`, `pgrep | kill`, or `kill` a PID you found by matching a name, path, or worktree string. Your own agent process has this worktree's path in its argv, and this machine runs several other dev servers at once. Kill only a PID you captured at spawn, or the owner of your port from `ss -H -ltnp` after confirming `/proc/<pid>/cwd` is your worktree.
-2. **Writing to the live install.** `~/.t3/userdata` is the developer's real T3 Code database, in use while you work. Reading or copying from it is fine. Never start a server against it, never open it read-write, never clean it up.
+2. **Writing to the live install.** `~/.c3/userdata` is the developer's real C3 Code database, in use while you work. Reading or copying from it is fine. Never start a server against it, never open it read-write, never clean it up.
 3. **Baking in origins.** Never set `VITE_HTTP_URL` or `VITE_WS_URL` for dev. Dev is single-origin and Vite proxies `/api`, `/ws`, `/oauth`, and `/.well-known`. Setting them bakes localhost into the bundle and silently breaks every remote browser.
 
 ## Hit every surface
@@ -84,17 +92,21 @@ See [00_development.md](docs/operations/00_development.md) for setup, ports, see
 
 ## Evals
 
-`evals/` checks how real models behave with T3 Code's model-facing text: agent instructions, MCP tool descriptions and schemas, and generated titles. Before changing that text, read [evals/README.md](evals/README.md) and run the evals it names. When fixing a model behavior bug, add a case that fails before the fix.
+`evals/` checks how real models behave with C3 Code's model-facing text: agent instructions, MCP tool descriptions and schemas, and generated titles. Before changing that text, read [evals/README.md](evals/README.md) and run the evals it names. When fixing a model behavior bug, add a case that fails before the fix.
 
 ## Pull requests
 
-- Never make a PR unless the developer explicitly asks you to do so.
-- `origin` is not always GitHub. Check `git remote get-url origin` before your first forge command and use that forge's CLI and skill. See [Forge mirror](docs/operations/00_development.md#forge-mirror-optional).
+- Never make a PR unless the developer explicitly asks you to do so. A run on the agent host whose skill opens a PR (`issue-fix`, `upstream-sync`, `nightly-lessons`) has that request.
+- Pull requests go to `CoreCodeAI/c3code`, never to the upstream `pingdotgg/t3code`. Pin it once per checkout with `gh repo set-default CoreCodeAI/c3code`.
 - Conventional commit titles, plain language: `fix(web): new threads no longer spike CPU`.
 - Body: the problem in a sentence or two, then how you fixed it. End with the model and harness that did the work.
 - UI changes need before/after images; motion or timing needs a short video. Upload PR evidence to GitHub—never commit PR-only screenshots or assets.
 - One request is one PR. Split only when asked. Outside contributions follow [CONTRIBUTING.md](CONTRIBUTING.md#one-problem).
 - When babysitting: call `watch_pull_request` and end your turn. Do not poll or sleep. Verify each bot finding against the source, fix real ones, dismiss false positives with a written reason. Stay quiet when nothing is new; stop when bots are green on the latest commit.
+
+## Agent maintenance
+
+Agents maintain C3 Code from a self-hosted agent host: they sync T3 Code daily, fix issues labeled `agent:fix`, review and merge PRs, and keep [LESSONS.md](LESSONS.md). Read LESSONS.md before you write or review a change. [Agent maintenance](docs/operations/06_agent-maintenance.md) says what each agent may do and when it stops for the maintainer; [review standards](docs/operations/07_review-standards.md) say what a mergeable PR shows. The files in [CODEOWNERS](.github/CODEOWNERS) guard the agents: never loosen one to make your own change pass.
 
 ## Documentation
 
