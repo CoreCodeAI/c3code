@@ -1,8 +1,8 @@
 # CLI reference (`t3`)
 
-The `t3` command runs and manages T3 Code servers, background services, remote access, threads, workflows, and diagnostics. Run `t3 --help` or `t3 <command> --help` for full flags.
+The `t3` command runs and manages C3 Code servers, background services, remote access, threads, workflows, and diagnostics. Run `t3 --help` or `t3 <command> --help` for full flags.
 
-See [Install T3 Code](./install.md#command-line) for installation (`curl -fsSL https://t3.codes/install.sh | sh`, `irm https://t3.codes/install.ps1 | iex`, or `npx t3@latest`).
+See [Install C3 Code](./install.md#command-line) for installation (`curl -fsSL https://raw.githubusercontent.com/CoreCodeAI/c3code/main/scripts/install.sh | sh` or `irm https://raw.githubusercontent.com/CoreCodeAI/c3code/main/scripts/install.ps1 | iex`).
 
 ## Running and connecting
 
@@ -48,5 +48,5 @@ See [Install T3 Code](./install.md#command-line) for installation (`curl -fsSL h
 | `t3 doctor`        | Inspect database size and reclaim disk space (`--dry-run`, `--fix`).                                       |
 | `t3 browser setup` | One-time Linux host setup (AppArmor sandbox profile, libraries, fonts) for the headless preview browser.   |
 | `t3 trace summary` | Summarize local server trace latency and errors (`--since 30m`, `--limit 50`).                             |
-| `t3 triage`        | Launch Claude Code, Codex, or Antigravity in your terminal with the T3 triage playbook.                    |
+| `t3 triage`        | Launch Claude Code, Codex, or Antigravity in your terminal with the C3 triage playbook.                    |
 | `t3 feedback`      | Send or inspect agent feedback reports (`list [--json]`, `--kind`, `--subject`, `--expected`, `--actual`). |

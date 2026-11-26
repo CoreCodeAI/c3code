@@ -5,12 +5,24 @@ import * as Effect from "effect/Effect";
 
 import { expandHomeVariable } from "./pathExpansion.ts";
 
+/**
+ * Asks every provider CLI C3 Code starts not to send usage telemetry or error reports. A value
+ * the user sets, inherited or configured on the instance, still wins.
+ */
+export const PROVIDER_TELEMETRY_OPT_OUT_ENV: Readonly<Record<string, string>> = {
+  DO_NOT_TRACK: "1",
+  DISABLE_TELEMETRY: "1",
+  DISABLE_ERROR_REPORTING: "1",
+  CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
+  OPENCODE_DISABLE_TELEMETRY: "1",
+};
+
 export const mergeProviderInstanceEnvironment = Effect.fn(function* (
   environment: ProviderInstanceEnvironment | undefined,
   baseEnv: NodeJS.ProcessEnv = process.env,
 ) {
   // Commands the agent runs inherit this env; the AppImage mount's libraries would shadow the system's.
-  const hostEnv = stripAppImageRuntimeEnv(baseEnv);
+  const hostEnv = stripAppImageRuntimeEnv({ ...PROVIDER_TELEMETRY_OPT_OUT_ENV, ...baseEnv });
   if (!environment || environment.length === 0) {
     return hostEnv;
   }

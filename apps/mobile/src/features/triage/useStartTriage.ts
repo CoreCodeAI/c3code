@@ -21,7 +21,8 @@ import {
 import { useSelectWorkspaceDetail } from "../layout/workspace/useSelectWorkspaceDetail";
 import { usePrepareTriage } from "./usePrepareTriage";
 
-const CLI_COMMAND = "npx t3 triage";
+// Not `npx t3`: C3 Code is not on npm, and that package is T3 Code.
+const CLI_COMMAND = "t3 triage";
 
 /**
  * In-app `t3 triage`, as on web: the server writes the session files and

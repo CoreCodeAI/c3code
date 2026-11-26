@@ -124,7 +124,7 @@ export const feedbackCommand = Command.make("feedback", {
     Flag.withDescription("What went wrong."),
   ),
   subject: Flag.String("subject").pipe(
-    Flag.withDescription("The T3 tool name, t3 command such as `t3 thread send`, or `general`."),
+    Flag.withDescription("The C3 tool name, t3 command such as `t3 thread send`, or `general`."),
   ),
   expected: Flag.String("expected").pipe(Flag.withDescription("What you expected.")),
   actual: Flag.String("actual").pipe(Flag.withDescription("What happened instead.")),
@@ -134,7 +134,7 @@ export const feedbackCommand = Command.make("feedback", {
   ),
 }).pipe(
   Command.withDescription(
-    "Send feedback about T3 Code to the T3 team. Needs Agent feedback set to Automatic in Settings > Labs; to approve a report first, ask your agent in a thread.",
+    "Not available: C3 Code has no agent feedback and sends no reports anywhere.",
   ),
   Command.withHandler(({ baseDir, kind, subject, expected, actual, workaround }) =>
     withThreadTools(
@@ -150,4 +150,6 @@ export const feedbackCommand = Command.make("feedback", {
     ).pipe(Effect.catchTags({ ThreadToolMissingError: feedbackOff }), reportThreadErrors),
   ),
   Command.withSubcommands([feedbackListCommand]),
+  // Kept so a thread told about `t3 feedback` by an older server gets the line above.
+  Command.unlisted,
 );

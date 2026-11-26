@@ -582,7 +582,7 @@ it.layer(
   );
 
   it.effect.skipIf(windowsHost)(
-    "gives npm view T3's own lasting npm cache and drops its partial download on interrupt",
+    "gives npm view C3's own lasting npm cache and drops its partial download on interrupt",
     () =>
       Effect.gen(function* () {
         const tempDir = yield* makeTempDir("t3-npm-view-cache");
@@ -760,7 +760,7 @@ it.layer(
       updateCommand: null,
       canUpdate: false,
       message:
-        "Version 2.1.117 is out. T3 Code runs /Applications/Tool.app/Contents/Resources/bin/package-tool; update it with the app or tool that installed it.",
+        "Version 2.1.117 is out. C3 Code runs /Applications/Tool.app/Contents/Resources/bin/package-tool; update it with the app or tool that installed it.",
     });
   });
 

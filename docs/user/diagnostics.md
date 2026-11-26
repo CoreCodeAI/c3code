@@ -1,6 +1,6 @@
 # Maintenance, power, and diagnostics
 
-Control how aggressively T3 Code runs background checks, keep your computer awake while agents work, inspect server health, and analyze local trace files.
+Control how aggressively C3 Code runs background checks, keep your computer awake while agents work, inspect server health, and analyze local trace files.
 
 ## Background activity and power
 
@@ -19,7 +19,7 @@ Open **Settings → Maintenance → Diagnostics** (select an environment) to ins
 - Live server logs and recent failures
 - Trace spans and CPU/memory resource history
 - Running child processes (with controls to signal or stop them)
-- **OpenTelemetry export** (OTLP HTTP endpoints; see [Export diagnostics](./telemetry.md#export-diagnostics-to-your-own-opentelemetry-receiver))
+- **OpenTelemetry export** (OTLP HTTP endpoints; see [Export diagnostics](./privacy.md#export-diagnostics-to-your-own-opentelemetry-receiver))
 
 On mobile, startup crashes from the last 7 days are recorded under **Settings → Diagnostics** for bug reports.
 

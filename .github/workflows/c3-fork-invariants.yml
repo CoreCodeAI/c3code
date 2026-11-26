@@ -1,0 +1,26 @@
+name: Fork invariants
+
+# C3 Code's promises as a fork: no usage data, no T3 Code branding, no links to T3's
+# services. scripts/check-fork-invariants.sh holds the checks; this runs it on every change,
+# including upstream syncs, so a merge that brings collection back fails here.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  invariants:
+    name: Fork invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Check fork invariants
+        run: bash scripts/check-fork-invariants.sh

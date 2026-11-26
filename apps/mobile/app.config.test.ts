@@ -1,4 +1,3 @@
-import { DEFAULT_HOSTED_APP_URL } from "@t3tools/shared/connectAuth";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 
 import appleAppSiteAssociation from "../web/public/.well-known/apple-app-site-association.json";
@@ -6,16 +5,20 @@ import assetLinks from "../web/public/.well-known/assetlinks.json";
 
 // Keep config parsing independent of local env files and build credentials.
 vi.mock("../../scripts/lib/public-config.ts", () => ({
-  loadRepoEnv: () => ({ APP_VARIANT: process.env.APP_VARIANT }),
+  loadRepoEnv: () => ({
+    APP_VARIANT: process.env.APP_VARIANT,
+    T3CODE_HOSTED_APP_URL: process.env.T3CODE_HOSTED_APP_URL,
+  }),
 }));
 
 afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-async function loadConfig(variant: string | undefined) {
+async function loadConfig(variant: string | undefined, hostedAppUrl?: string) {
   vi.resetModules();
   vi.stubEnv("APP_VARIANT", variant);
+  vi.stubEnv("T3CODE_HOSTED_APP_URL", hostedAppUrl);
   return (await import("./app.config.ts")).default;
 }
 
@@ -34,14 +37,22 @@ it.each([
   const config = await loadConfig(value);
   expect(config.ios?.bundleIdentifier).toBe(identifier);
   expect(config.android?.package).toBe(identifier);
-  // Copied thread links open this app only while app.t3.codes lists it.
-  const host = new URL(DEFAULT_HOSTED_APP_URL).host;
-  expect(config.ios?.associatedDomains).toContain(`applinks:${host}`);
   expect(appleAppSiteAssociation.applinks.details[0]?.appIDs).toContain(
     `${config.ios?.appleTeamId}.${identifier}`,
   );
-  expect(config.android?.intentFilters?.[0]?.data).toEqual([
-    { scheme: "https", host, pathPrefix: "/threads/" },
-  ]);
   expect(assetLinks.map((link) => link.target.package_name)).toContain(identifier);
+});
+
+it("claims no hosted app's thread links unless the build names one", async () => {
+  const config = await loadConfig("production");
+  expect(config.ios?.associatedDomains).not.toContain("applinks:app.t3.codes");
+  expect(config.android?.intentFilters).toEqual([]);
+});
+
+it("opens a configured hosted app's thread links", async () => {
+  const config = await loadConfig("production", "https://app.example.com");
+  expect(config.ios?.associatedDomains).toContain("applinks:app.example.com");
+  expect(config.android?.intentFilters?.[0]?.data).toEqual([
+    { scheme: "https", host: "app.example.com", pathPrefix: "/threads/" },
+  ]);
 });

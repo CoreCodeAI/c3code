@@ -1600,7 +1600,7 @@ describe("OrchestratorMcpService provider resolution", () => {
     version: input.enabled === false ? null : "test",
     status: input.enabled === false ? "disabled" : "ready",
     auth: { status: input.enabled === false ? "unknown" : "authenticated" },
-    ...(input.enabled === false ? { message: "Provider is disabled in T3 Code settings." } : {}),
+    ...(input.enabled === false ? { message: "Provider is disabled in C3 Code settings." } : {}),
     checkedAt: "2026-09-13T00:00:00.000Z",
     models:
       input.model === undefined
@@ -5481,7 +5481,7 @@ describe("OrchestratorMcpService thread lookup", () => {
         for (const link of [
           `t3-thread://v2/${ref.environmentId}/${ref.threadId}`,
           formatThreadLink(ref, "Delegated task"),
-          hostedThreadLink(ref),
+          hostedThreadLink(ref, "https://app.t3.codes"),
         ]) {
           const read = yield* mcp
             .readThread(client, { threadId: ThreadId.make(link) })

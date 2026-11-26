@@ -345,6 +345,7 @@ it.layer(layerTest)("AntigravityDriver", (it) => {
         for (const launch of agentLaunches) {
           expect(launch.args).toEqual([
             "acp",
+            "--disable-telemetry",
             "--gemini-dir",
             h.profileDirectory,
             "--app-data-dir",
@@ -444,6 +445,7 @@ it.layer(layerTest)("AntigravityDriver", (it) => {
           });
           expect(h.launches.at(-1)?.args).toEqual([
             "acp",
+            "--disable-telemetry",
             "--gemini-dir",
             h.profileDirectory,
             "--app-data-dir",
@@ -464,7 +466,7 @@ it.layer(layerTest)("AntigravityDriver", (it) => {
   );
 
   it.effect.skipIf(windowsHost)(
-    "gives a thread session its own T3 thread and MCP fallback environment",
+    "gives a thread session its own C3 thread and MCP fallback environment",
     () =>
       Effect.gen(function* () {
         const h = yield* makeHarness({
@@ -562,7 +564,7 @@ it.layer(layerTest)("AntigravityDriver", (it) => {
             yield* session.ensureThread({ threadId, modelSelection, runtimePolicy });
           }),
         ).pipe(Effect.flip);
-        const message = `Antigravity 1.4.5 does not work with this T3 Code release. Update the Antigravity executable at ${old.executablePath} to >=1.5.12 <2, then retry.`;
+        const message = `Antigravity 1.4.5 does not work with this C3 Code release. Update the Antigravity executable at ${old.executablePath} to >=1.5.12 <2, then retry.`;
         expect(knownProviderFailureMessage(error)).toBe(message);
         expect((yield* h.refresh().pipe(Effect.flip)).detail).toBe(message);
         const methods = (yield* h.readRequests).map((request) => request.method);

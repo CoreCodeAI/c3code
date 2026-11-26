@@ -932,7 +932,7 @@ describe("ClaudeAdapterV2 native protocol logging", () => {
     assert.equal(systemPrompt.preset, "claude_code");
     assert.include(systemPrompt.append ?? "", "Use `delegate_task`");
     assert.include(systemPrompt.append ?? "", "call `t3_background_wait`");
-    assert.notInclude(systemPrompt.append ?? "", "## T3 Code devices");
+    assert.notInclude(systemPrompt.append ?? "", "## C3 Code devices");
     const logged = ClaudeAdapterV2.loggedClaudeQueryOptions(options);
     assert.equal(logged.hasMcpServers, true);
     assert.notInclude(JSON.stringify(logged), "secret-claude-token");
@@ -952,7 +952,7 @@ describe("ClaudeAdapterV2 native protocol logging", () => {
   });
 });
 
-describe("ClaudeAdapterV2 T3 tool instructions", () => {
+describe("ClaudeAdapterV2 C3 tool instructions", () => {
   const options = (input: {
     readonly mcp: boolean;
     readonly deviceToolsAvailable: boolean;
@@ -982,12 +982,12 @@ describe("ClaudeAdapterV2 T3 tool instructions", () => {
     assert.include(text, "Use `delegate_task`");
   });
 
-  it("leaves the device block out without device access or without T3 tools", () => {
-    assert.notInclude(append({ mcp: true, deviceToolsAvailable: false }), "## T3 Code devices");
-    assert.notInclude(append({ mcp: false, deviceToolsAvailable: true }), "## T3 Code devices");
+  it("leaves the device block out without device access or without C3 tools", () => {
+    assert.notInclude(append({ mcp: true, deviceToolsAvailable: false }), "## C3 Code devices");
+    assert.notInclude(append({ mcp: false, deviceToolsAvailable: true }), "## C3 Code devices");
   });
 
-  it("gives the agent feedback line only to a session with T3 tools", () => {
+  it("gives the agent feedback line only to a session with C3 tools", () => {
     const feedback = (mcp: boolean, agentFeedback: "off" | "auto") =>
       append({ mcp, deviceToolsAvailable: false, agentFeedback }).includes("t3_feedback");
     assert.include(
@@ -1610,7 +1610,7 @@ describe("ClaudeAdapterV2 append-system-prompt-file launch argument", () => {
     ),
   );
 
-  it.effect("sends append launch arguments to Claude after the T3 instructions", () =>
+  it.effect("sends append launch arguments to Claude after the C3 instructions", () =>
     Effect.gen(function* () {
       const fileSystem = yield* FileSystem.FileSystem;
       const cwd = yield* fileSystem.makeTempDirectoryScoped({ prefix: "t3-claude-append-cwd-" });
@@ -1645,7 +1645,7 @@ describe("ClaudeAdapterV2 append-system-prompt-file launch argument", () => {
   it.effect.each([
     `--settings '{"skillOverrides":{"lint":"off"},"showThinkingSummaries":false}'`,
     "--settings user-settings.json",
-  ])("merges %s beneath T3's settings", (launchArgs) =>
+  ])("merges %s beneath C3's settings", (launchArgs) =>
     Effect.gen(function* () {
       const fileSystem = yield* FileSystem.FileSystem;
       const cwd = yield* fileSystem.makeTempDirectoryScoped({ prefix: "t3-claude-settings-" });
@@ -3408,7 +3408,7 @@ describe("ClaudeAdapterV2 MCP credential channel", () => {
           ...ClaudeAdapterV2.makeClaudeQueryOptions({
             modelSelection: CLAUDE_TEST_MODEL_SELECTION,
             nativeThreadId: "native-thread-claude-mcp-channel",
-            title: "Existing T3 title",
+            title: "Existing C3 title",
             resume: false,
             cwd: null,
             environment: { PATH: "/usr/bin" },
@@ -3465,7 +3465,7 @@ describe("ClaudeAdapterV2 MCP credential channel", () => {
       });
       assert.deepInclude(
         cli.controlRequests.find((request) => Reflect.get(request, "subtype") === "initialize"),
-        { title: "Existing T3 title" },
+        { title: "Existing C3 title" },
       );
       const spawned = JSON.stringify(cli.spawns);
       assert.notInclude(spawned, "--title");
@@ -3640,7 +3640,7 @@ describe("ClaudeAdapterV2 native session identity", () => {
     }),
   );
 
-  it.effect("resumes an imported native session on its first T3 turn", () =>
+  it.effect("resumes an imported native session on its first C3 turn", () =>
     Effect.gen(function* () {
       const openedQueries = yield* openTurnWithOrdinal(1, false, "imported-native-session");
       assert.equal(openedQueries.length, 1);
@@ -7465,7 +7465,7 @@ describe("ClaudeAdapterV2 background wake turns", () => {
       readOnly: false,
     },
     {
-      case: "a deny rule for this tool on a server alias T3 can't list",
+      case: "a deny rule for this tool on a server alias C3 can't list",
       rules: [{ behavior: "deny", rule: "mcp__probe_alias__refresh_weather" }],
       called: false,
       readOnly: false,
@@ -8522,7 +8522,7 @@ describe("ClaudeAdapterV2 background wake turns", () => {
       }).pipe(Effect.scoped, Effect.provide(testLayer)),
     );
 
-    it.effect("shows what T3 Code's own tool asks without naming a server", () =>
+    it.effect("shows what C3 Code's own tool asks without naming a server", () =>
       Effect.gen(function* () {
         const { harness, elicit, awaitCard } = yield* startElicitationTurn();
         const sessions = yield* McpProviderSessions.McpProviderSessions;
@@ -8547,13 +8547,13 @@ describe("ClaudeAdapterV2 background wake turns", () => {
         assert.deepInclude(cards().at(-1), { prompt: message, pushHooks });
         assert.notProperty(cards().at(-1), "appName");
 
-        // Asked by a server T3 Code did not register: its name is shown, as for any server.
-        yield* elicit({ ...own, serverName: "deploys", displayName: "T3 Code" });
+        // Asked by a server C3 Code did not register: its name is shown, as for any server.
+        yield* elicit({ ...own, serverName: "deploys", displayName: "C3 Code" });
         yield* awaitCard(2);
-        assert.deepInclude(cards().at(-1), { prompt: message, appName: "T3 Code" });
+        assert.deepInclude(cards().at(-1), { prompt: message, appName: "C3 Code" });
         assert.notProperty(cards().at(-1), "pushHooks");
 
-        // Under T3 Code's name, but nothing T3 Code asked this thread.
+        // Under C3 Code's name, but nothing C3 Code asked this thread.
         yield* elicit({ ...own, message: "Push tools?" });
         yield* awaitCard(3);
         assert.deepInclude(cards().at(-1), { prompt: "Push tools?", appName: "t3-code" });
@@ -8561,7 +8561,7 @@ describe("ClaudeAdapterV2 background wake turns", () => {
       }).pipe(Effect.scoped, Effect.provide(testLayer)),
     );
 
-    it.effect("asks the person every time T3 Code's own tool asks", () =>
+    it.effect("asks the person every time C3 Code's own tool asks", () =>
       Effect.gen(function* () {
         const { harness, elicit, awaitCard } = yield* startElicitationTurn();
         const sessions = yield* McpProviderSessions.McpProviderSessions;
@@ -8605,7 +8605,7 @@ describe("ClaudeAdapterV2 background wake turns", () => {
           decision: "acceptForSession",
         });
         assert.deepEqual(yield* Fiber.join(first), { action: "accept", content: {} });
-        // What the person answered in the app stays with the request T3 Code made.
+        // What the person answered in the app stays with the request C3 Code made.
         assert.deepInclude(yield* sessions.takeApprovalRequest(harness.threadId, firstAsked), {
           approved: true,
         });
@@ -12239,7 +12239,7 @@ describe("ClaudeAdapterV2 background wake turns", () => {
           entry("assistant", firstReply, promptUuid, [{ type: "text", text: "Working." }]),
       },
       {
-        name: "only bookkeeping follows T3's reply",
+        name: "only bookkeeping follows C3's reply",
         transcript: (promptUuid: string) =>
           t3Turn(promptUuid) +
           line({
@@ -17835,7 +17835,7 @@ describe("ClaudeAdapterV2 background wake turns", () => {
 
   // regression: #17531 a mod that holds a tool behind a focused pane must fail the turn, not hang it
   it.effect.each([
-    { case: "fails a turn whose mod requests focus for a pane T3 cannot show", focus: true },
+    { case: "fails a turn whose mod requests focus for a pane C3 cannot show", focus: true },
     { case: "keeps a turn running beside a passive mod pane", focus: false },
   ] as const)("$case", ({ focus }) =>
     Effect.gen(function* () {
@@ -27107,7 +27107,7 @@ describe("ClaudeAdapterV2 background wake turns", () => {
       ),
     );
 
-    it.effect("ends a goal check without re-prompting while T3 work will wake the thread", () =>
+    it.effect("ends a goal check without re-prompting while C3 work will wake the thread", () =>
       Effect.gen(function* () {
         const harness = yield* makeWakeHarness;
         const mcpSessions = yield* McpProviderSessions.McpProviderSessions;

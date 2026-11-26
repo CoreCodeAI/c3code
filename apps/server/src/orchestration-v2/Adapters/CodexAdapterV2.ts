@@ -986,7 +986,7 @@ export const buildCodexTurnStartParams = Effect.fn("CodexAdapterV2.buildCodexTur
             },
           )
         : undefined;
-    // Its own entry, so the folder list reaches the model without T3 Code's MCP tools too.
+    // Its own entry, so the folder list reaches the model without C3 Code's MCP tools too.
     const workspaceInstructions = buildWorkspaceInstructions(input.runtimePolicy);
     const workspaceContext =
       workspaceInstructions === ""
@@ -2125,7 +2125,7 @@ export const makeCodexAdapterV2 = Effect.fn("makeCodexAdapterV2")(function* (
   adapterOptions: CodexAdapterV2Options,
 ) {
   const mcpSessions = yield* McpProviderSessions.McpProviderSessions;
-  // The elicitation handler shows T3 Code's own requests and passes on the person's answer to each.
+  // The elicitation handler shows C3 Code's own requests and passes on the person's answer to each.
   yield* mcpSessions.showsApprovalRequests(adapterOptions.instanceId);
   const readMcpSession = (threadId: ThreadId | null) =>
     threadId === null ? Effect.undefined : mcpSessions.read(threadId);
@@ -6560,7 +6560,7 @@ export const makeCodexAdapterV2 = Effect.fn("makeCodexAdapterV2")(function* (
             const ownRequest = CODEX_T3_MCP_SERVERS.has(payload.serverName)
               ? yield* mcpSessions.findApprovalRequest(context.input.threadId, payload.message)
               : undefined;
-            // T3 Code asks only when a person has to answer, so its own request is never
+            // C3 Code asks only when a person has to answer, so its own request is never
             // answered here: a turn's runtime mode alone does not say the thread is in Full access.
             if (
               ownRequest === undefined &&
@@ -6580,7 +6580,7 @@ export const makeCodexAdapterV2 = Effect.fn("makeCodexAdapterV2")(function* (
               nativeRequestId,
               requestKind: "mcp-elicitation",
               prompt: payload.message,
-              // T3 Code asking is the app itself, so there is no other app to name.
+              // C3 Code asking is the app itself, so there is no other app to name.
               ...(ownRequest === undefined
                 ? { appName: described.appName }
                 : { pushHooks: ownRequest.pushHooks }),
@@ -6623,7 +6623,7 @@ export const makeCodexAdapterV2 = Effect.fn("makeCodexAdapterV2")(function* (
               ),
             );
             const response = toMcpElicitationResponse(payload, resolved);
-            // The person's answer in the app is what T3 Code's own request goes by, so it is
+            // The person's answer in the app is what C3 Code's own request goes by, so it is
             // left with the request before Codex carries a reply back.
             if (ownRequest !== undefined) {
               yield* mcpSessions.answerApprovalRequests(
@@ -9397,7 +9397,7 @@ export const makeCodexAdapterV2 = Effect.fn("makeCodexAdapterV2")(function* (
                   catch: () =>
                     new ProviderMcpSignInError({
                       server,
-                      detail: `Codex returned a sign-in page for ${server} that T3 Code can't open.`,
+                      detail: `Codex returned a sign-in page for ${server} that C3 Code can't open.`,
                     }),
                 });
                 const redirectUri = params.get("redirect_uri");

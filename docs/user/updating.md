@@ -1,6 +1,6 @@
-# Updating T3 Code
+# Updating C3 Code
 
-T3 Code clients and servers can run on different machines and must share a compatible orchestration protocol. When a server or provider is behind, the sidebar update button and **Settings → Environments** handle updates.
+C3 Code clients and servers can run on different machines and must share a compatible orchestration protocol. When a server or provider is behind, the sidebar update button and **Settings → Environments** handle updates.
 
 ## Update everything at once
 
@@ -19,11 +19,11 @@ In the desktop app, change **Settings → About → Update track** to switch con
 
 ## Continue threads after restarts
 
-**Settings → Maintenance → Continue threads after restarts** is enabled by default. After an update, crash, or reboot (once T3 Code starts again), supported active threads automatically resume—and threads waiting on subagents or monitors are woken and notified that background work stopped.
+**Settings → Maintenance → Continue threads after restarts** is enabled by default. After an update, crash, or reboot (once C3 Code starts again), supported active threads automatically resume—and threads waiting on subagents or monitors are woken and notified that background work stopped.
 
 - Threads waiting for your approval/answer/secret—or archived, snoozed, or settled—are not auto-resumed.
 - After 3 consecutive crash recoveries of an unfinished turn, the thread waits for your next message.
-- Updating from V1? Read [Threads from older T3 Code versions](./thread-migration.md).
+- Updating from V1? Read [Threads from older C3 Code versions](./thread-migration.md).
 
 ## Update a connected server manually
 
@@ -31,8 +31,6 @@ In the desktop app, change **Settings → About → Update track** to switch con
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Background service / desktop server | Click **Update server** in **Settings → Environments** (desktop hosts relaunch automatically).        |
 | Installed `t3` CLI                  | Run `t3 update <version>` on the host (then `t3 service restart` if you declined the restart prompt). |
-| `npx` server                        | Stop the server and relaunch with `npx t3@<version>` and your usual flags.                            |
-| Package manager (Nix, AUR)          | Update via your package manager.                                                                      |
 
 Each server checks npm/Homebrew/pnpm using its own local registry and proxy settings.
 
@@ -43,11 +41,11 @@ Open **Settings → Providers** and click **Update now** on individual providers
 ## Mobile updates
 
 - Update connected environments and providers from **Settings → Environments** on mobile.
-- Update the mobile app via the App Store or Google Play (background over-the-air updates apply on next app switch and preserve drafts/queued messages).
+- Update the mobile app by rebuilding it from source ([Mobile app](./install.md#mobile-app)). Builds made against your own Expo project also take over-the-air updates, which apply on the next app switch and keep drafts and queued messages.
 
 ## Troubleshooting
 
 - **Version mismatch**: Update whichever side (app or server) the connection notice names.
-- **Failed update**: Retry once; confirm you updated the host machine (not just the client) and that only one server owns the T3 home directory.
-- **macOS Alpha → Beta**: Open `/Applications/T3 Code (Beta).app` manually and re-pin it to the Dock.
+- **Failed update**: Retry once; confirm you updated the host machine (not just the client) and that only one server owns the C3 home directory.
+- **macOS Alpha → Beta**: Open `/Applications/C3 Code (Beta).app` manually and re-pin it to the Dock.
 - **Desktop won't start**: Use the recovery window's **Update** button, install the linked last-working version, or **Copy details** for a bug report.

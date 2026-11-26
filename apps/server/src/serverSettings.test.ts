@@ -307,6 +307,27 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer))("server settings"
     }).pipe(Effect.provide(layerServerSettings())),
   );
 
+  it.effect("keeps agent feedback off whatever the file or a client asks for", () =>
+    Effect.gen(function* () {
+      const config = yield* ServerConfig.ServerConfig;
+      const fs = yield* FileSystem.FileSystem;
+      const service = yield* ServerSettingsModule.ServerSettingsService;
+      yield* fs.writeFileString(config.settingsPath, `{ "agentFeedback": { "mode": "auto" } }`);
+
+      // C3 Code collects nothing, and agent feedback only ever sent reports to the T3 team.
+      assert.equal((yield* service.getSettings).agentFeedback.mode, "off");
+      const fromDisk = yield* ServerSettingsModule.readServerSettingsFromDisk.pipe(
+        Effect.provide(ManagedPolicy.layerTest()),
+      );
+      assert.equal(fromDisk.agentFeedback.mode, "off");
+      const updated = yield* service.updateSettings({ agentFeedback: { mode: "on-request" } });
+      assert.equal(updated.agentFeedback.mode, "off");
+      yield* service.withSettingsSnapshot((settings) =>
+        Effect.sync(() => assert.equal(settings.agentFeedback.mode, "off")),
+      );
+    }).pipe(Effect.provide(layerServerSettings())),
+  );
+
   it.effect("tells clients it reads idle compaction modes before any settings are saved", () =>
     Effect.gen(function* () {
       const service = yield* ServerSettingsModule.ServerSettingsService;

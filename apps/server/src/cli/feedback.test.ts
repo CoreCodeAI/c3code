@@ -1,5 +1,3 @@
-import * as NodeSqlite from "node:sqlite";
-
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { expect, it } from "@effect/vitest";
@@ -17,7 +15,6 @@ import { Command } from "effect/cli";
 import { vi } from "vite-plus/test";
 
 import { makeCli } from "../binCli.ts";
-import * as SqlitePersistence from "../persistence/Sqlite.ts";
 import { FEEDBACK_OFF_MESSAGE, T3_CLI_COMMANDS } from "../feedback/FeedbackReport.ts";
 import * as McpBridge from "../mcp/AcpMcpStdioBridge.ts";
 import {
@@ -59,7 +56,7 @@ it("feedback subjects name every listed t3 command", () => {
 
 const hidden = (tool: string) =>
   new McpBridge.AcpMcpBridgeError({
-    message: "T3 Code MCP tools/call failed.",
+    message: "C3 Code MCP tools/call failed.",
     rpcError: { code: -32602, message: `Tool '${tool}' not found` },
   });
 
@@ -81,7 +78,7 @@ const expectOneLine = (args: ReadonlyArray<string>, baseDir: string, stderr: str
     );
   });
 
-it.effect("points to Labs only when the server hides the feedback tool", () =>
+it.effect("reports feedback as unavailable, whatever the settings file says", () =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
@@ -113,9 +110,9 @@ it.effect("points to Labs only when the server hides the feedback tool", () =>
           Effect.fail(
             new McpBridge.AcpMcpBridgeError({ message: "fetch failed: connection refused" }),
           ),
-        stderr: `Could not reach the T3 Code server at ${runtimeState.origin}.`,
+        stderr: `Could not reach the C3 Code server at ${runtimeState.origin}.`,
       },
-      { args: submit, running: false, stderr: "No running T3 Code server uses" },
+      { args: submit, running: false, stderr: "No running C3 Code server uses" },
     ];
     for (const { args, running, call, stderr } of cases) {
       yield* running === false
@@ -135,17 +132,6 @@ it.effect("points to Labs only when the server hides the feedback tool", () =>
         path.join(dir, "userdata", "settings.json"),
         JSON.stringify({ agentFeedback: { mode: "auto" } }),
       );
-    const listJson = (dir: string) =>
-      Command.runWith(feedbackCommand, { version: "0.0.0" })([
-        "list",
-        "--json",
-        "--base-dir",
-        dir,
-      ]).pipe(
-        Effect.andThen(TestConsole.logLines),
-        Effect.map((lines) => JSON.parse(String(lines.at(-1)))),
-      );
-
     // A file the server rejects reads as the defaults, so Off, as the server would read it.
     const rejected = yield* fs.makeTempDirectoryScoped({ prefix: "t3-feedback-cli-" });
     yield* fs.makeDirectory(path.join(rejected, "userdata"), { recursive: true });
@@ -155,59 +141,10 @@ it.effect("points to Labs only when the server hides the feedback tool", () =>
     );
     yield* expectOneLine(["list"], rejected, FEEDBACK_OFF_MESSAGE);
 
-    // On, a damaged database is one line too.
-    const damaged = yield* fs.makeTempDirectoryScoped({ prefix: "t3-feedback-cli-" });
-    yield* fs.makeDirectory(path.join(damaged, "userdata"), { recursive: true });
-    yield* turnOn(damaged);
-    yield* fs.writeFileString(path.join(damaged, "userdata", "statev2.sqlite"), "not a database");
-    yield* expectOneLine(["list"], damaged, "Could not read this machine's feedback reports: ");
-
-    // A database from before agent feedback, with no table for it, lists nothing.
-    const older = yield* fs.makeTempDirectoryScoped({ prefix: "t3-feedback-cli-" });
-    yield* fs.makeDirectory(path.join(older, "userdata"), { recursive: true });
-    yield* turnOn(older);
-    const olderDatabase = new NodeSqlite.DatabaseSync(
-      path.join(older, "userdata", "statev2.sqlite"),
-    );
-    olderDatabase.exec("CREATE TABLE projection_projects (project_id TEXT)");
-    olderDatabase.close();
-    expect(yield* listJson(older)).toEqual([]);
-
-    // On, the list prints each stored report whole, trace included, with no server running.
+    // C3 Code keeps agent feedback off whatever the file says, so On still opens no database.
     yield* turnOn(baseDir);
-    yield* Effect.scoped(Layer.build(SqlitePersistence.layerFromPath(dbPath)));
-    const trace = {
-      turns: 1,
-      textTurns: 0,
-      truncated: false,
-      entries: [{ turn: 1, type: "user", length: 4 }],
-    };
-    const database = new NodeSqlite.DatabaseSync(dbPath);
-    database
-      .prepare(
-        `INSERT INTO agent_feedback (id, thread_id, run_id, created_at, kind, subject, expected,
-          actual, workaround, user_requested, trace, source, sent)
-        VALUES ('r1', 't1', 'run1', '2026-11-17T00:00:00.000Z', 'bug', 't3_thread_read', 'a', 'b',
-          '', 1, ?, 'mcp', 1)`,
-      )
-      .run(JSON.stringify(trace));
-    database.close();
-    expect(yield* listJson(baseDir)).toEqual([
-      {
-        id: "r1",
-        threadId: "t1",
-        createdAt: "2026-11-17T00:00:00.000Z",
-        kind: "bug",
-        subject: "t3_thread_read",
-        expected: "a",
-        actual: "b",
-        workaround: "",
-        userRequested: true,
-        trace,
-        source: "mcp",
-        sent: true,
-      },
-    ]);
+    yield* expectOneLine(["list"], baseDir, FEEDBACK_OFF_MESSAGE);
+    expect(yield* fs.exists(dbPath)).toBe(false);
   }).pipe(
     Effect.scoped,
     Effect.provide(

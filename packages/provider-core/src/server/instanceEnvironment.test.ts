@@ -5,7 +5,10 @@ import * as Effect from "effect/Effect";
 import * as Path from "effect/Path";
 import * as HostProcess from "@t3tools/shared/HostProcess";
 
-import { mergeProviderInstanceEnvironment } from "./instanceEnvironment.ts";
+import {
+  mergeProviderInstanceEnvironment,
+  PROVIDER_TELEMETRY_OPT_OUT_ENV as optOut,
+} from "./instanceEnvironment.ts";
 
 describe("mergeProviderInstanceEnvironment", () => {
   it.effect.each([
@@ -30,6 +33,7 @@ describe("mergeProviderInstanceEnvironment", () => {
       );
 
       expect(environment).toEqual({
+        ...optOut,
         CODEX_HOME: path.join("/home/ada", tail),
         CLAUDE_CONFIG_DIR: path.join("/home/ada", tail),
         GROK_HOME: path.join("/home/ada", tail),
@@ -55,7 +59,7 @@ describe("mergeProviderInstanceEnvironment", () => {
           [{ name: "CUSTOM_VALUE", value: "~/.custom", sensitive: false }],
           baseEnv,
         ),
-      ).toEqual({ ...baseEnv, CUSTOM_VALUE: "~/.custom" });
+      ).toEqual({ ...optOut, ...baseEnv, CUSTOM_VALUE: "~/.custom" });
     }),
   );
 
@@ -83,6 +87,25 @@ describe("mergeProviderInstanceEnvironment", () => {
         OPENAI_API_KEY: "inherited",
         PATH: "/bin",
       });
+    }),
+  );
+
+  it.effect("asks provider CLIs not to send telemetry unless the user says otherwise", () =>
+    Effect.gen(function* () {
+      expect(yield* mergeProviderInstanceEnvironment(undefined, { PATH: "/bin" })).toEqual({
+        DO_NOT_TRACK: "1",
+        DISABLE_TELEMETRY: "1",
+        DISABLE_ERROR_REPORTING: "1",
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
+        OPENCODE_DISABLE_TELEMETRY: "1",
+        PATH: "/bin",
+      });
+      expect(
+        yield* mergeProviderInstanceEnvironment(
+          [{ name: "DISABLE_ERROR_REPORTING", value: "", sensitive: false }],
+          { DO_NOT_TRACK: "0" },
+        ),
+      ).toMatchObject({ DO_NOT_TRACK: "0", DISABLE_ERROR_REPORTING: "" });
     }),
   );
 
@@ -123,6 +146,7 @@ describe("mergeProviderInstanceEnvironment", () => {
         });
 
         expect(merged).toEqual({
+          ...optOut,
           PATH: ":/usr/bin",
           LD_LIBRARY_PATH: keptLibraryPath,
           XDG_DATA_DIRS: "/usr/share",
@@ -147,10 +171,15 @@ describe("mergeProviderInstanceEnvironment", () => {
           Effect.provideService(HostProcess.Platform, "win32"),
           Effect.provideService(HostProcess.HomeDirectory, "/home/ada"),
         ),
-      ).toEqual({ CODEX_HOME: "/home/ada/corp" });
+      ).toEqual({ ...optOut, CODEX_HOME: "/home/ada/corp" });
       // Upper case sorts first, so it also wins where a spawn merges the parent environment back.
-      expect(yield* merge("win32")).toEqual({ HTTPS_PROXY: "http://gateway", PATH: "/bin" });
+      expect(yield* merge("win32")).toEqual({
+        ...optOut,
+        HTTPS_PROXY: "http://gateway",
+        PATH: "/bin",
+      });
       expect(yield* merge("linux")).toEqual({
+        ...optOut,
         HTTPS_PROXY: "http://mine",
         Https_Proxy: "http://gateway",
         PATH: "/bin",

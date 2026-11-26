@@ -1,5 +1,6 @@
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { ProviderInstanceId } from "@t3tools/contracts";
+import { PROVIDER_TELEMETRY_OPT_OUT_ENV } from "@t3tools/provider-core/server/instanceEnvironment";
 import { totalTokens } from "@t3tools/provider-core/server/usage";
 import * as HostProcess from "@t3tools/shared/HostProcess";
 import { SpawnExecutableResolution } from "@t3tools/shared/shell";
@@ -223,6 +224,7 @@ describe("Muse history discovery", () => {
         expect(create).toHaveBeenCalledWith({
           binaryPath: path.join("/test-home", "bin/custom-muse"),
           environment: {
+            ...PROVIDER_TELEMETRY_OPT_OUT_ENV,
             PATH: "/host/bin",
             XDG_DATA_HOME: xdg ?? "/host/data",
             MUSE_NO_AUTO_UPDATE: "1",

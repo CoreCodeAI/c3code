@@ -72,7 +72,7 @@ export class NoRunningServerError extends Schema.TaggedError<NoRunningServerErro
 ) {
   override get message(): string {
     return [
-      "No running T3 Code server found.",
+      "No running C3 Code server found.",
       ...this.checkedStatePaths.map((statePath) => `  checked ${statePath}`),
       ...(this.inLinkedWorktree
         ? ["In a linked worktree, pass --base-dir to pair with a server outside it."]
@@ -92,7 +92,7 @@ export class IncompatibleServerProtocolError extends Schema.TaggedError<Incompat
 ) {
   override get message(): string {
     return [
-      `The running T3 Code server (${this.serverVersion}) speaks orchestration protocol ${String(this.serverProtocolVersion)}, but this CLI speaks protocol ${String(ORCHESTRATION_PROTOCOL_VERSION)}.`,
+      `The running C3 Code server (${this.serverVersion}) speaks orchestration protocol ${String(this.serverProtocolVersion)}, but this CLI speaks protocol ${String(ORCHESTRATION_PROTOCOL_VERSION)}.`,
       `Pair with the matching CLI instead: \`${this.pairCommand}\`.`,
     ].join("\n");
   }
@@ -130,7 +130,7 @@ export class ServesOtherEnvironmentError extends Schema.TaggedError<ServesOtherE
   { servePort: Schema.Number },
 ) {
   override get message(): string {
-    return `Tailscale Serve on HTTPS port ${String(this.servePort)} already fronts a different T3 Code server. Pass --tailscale-serve-port to publish this one on another port.`;
+    return `Tailscale Serve on HTTPS port ${String(this.servePort)} already fronts a different C3 Code server. Pass --tailscale-serve-port to publish this one on another port.`;
   }
 }
 
@@ -166,7 +166,7 @@ export class ServePortOccupiedError extends Schema.TaggedError<ServePortOccupied
   { servePort: Schema.Number },
 ) {
   override get message(): string {
-    return `HTTPS port ${String(this.servePort)} on the tailnet already serves something that is not a T3 Code server. Pass --tailscale-serve-port to publish this one on another port.`;
+    return `HTTPS port ${String(this.servePort)} on the tailnet already serves something that is not a C3 Code server. Pass --tailscale-serve-port to publish this one on another port.`;
   }
 }
 
@@ -537,7 +537,7 @@ export const pairCommand = Command.make("pair", {
   tailscaleServePort: tailscaleServePortFlag,
 }).pipe(
   Command.withDescription(
-    "Mint a pairing token for a running T3 Code server and print it as a QR code.",
+    "Mint a pairing token for a running C3 Code server and print it as a QR code.",
   ),
   Command.withHandler((flags) =>
     Effect.gen(function* () {
@@ -556,10 +556,15 @@ export const pairCommand = Command.make("pair", {
           explicitBaseDir !== undefined && explicitBaseDir.trim().length > 0
             ? ` --base-dir ${hostShellWord(platform, explicitBaseDir)}`
             : "";
+        // C3 Code is not on npm (`npx t3` runs T3 Code), so install the matching release first.
+        const version = target.descriptor.serverVersion;
         return yield* new IncompatibleServerProtocolError({
-          serverVersion: target.descriptor.serverVersion,
+          serverVersion: version,
           serverProtocolVersion,
-          pairCommand: `npx t3@${target.descriptor.serverVersion} pair${baseDirArgs}`,
+          pairCommand:
+            platform === "win32"
+              ? `$env:T3CODE_VERSION="${version}"; irm https://raw.githubusercontent.com/CoreCodeAI/c3code/main/scripts/install.ps1 | iex; t3 pair${baseDirArgs}`
+              : `curl -fsSL https://raw.githubusercontent.com/CoreCodeAI/c3code/main/scripts/install.sh | T3CODE_VERSION=${version} sh && t3 pair${baseDirArgs}`,
         });
       }
 
