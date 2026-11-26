@@ -74,6 +74,28 @@ C3 Code is not in the App Store or Google Play; the apps there are T3 Code. Buil
 - The app checks for over-the-air updates only when built against your own Expo project (`T3CODE_EAS_PROJECT_ID` in [`.env.example`](../../.env.example)); otherwise rebuild it to update.
 - If the mobile app crashes on launch, open **Settings → Diagnostics** on the next launch to copy recent startup crash reports.
 
+## Beside T3 Code
+
+C3 Code installs beside T3 Code without touching it:
+
+| What                 | C3 Code                                          | T3 Code                                        |
+| -------------------- | ------------------------------------------------ | ---------------------------------------------- |
+| Data home            | `~/.c3`                                          | `~/.t3`                                        |
+| Server port          | 3873                                             | 3773                                           |
+| Desktop app id       | `live.corecode.c3code`                           | `com.t3tools.t3code`                           |
+| Background service   | `c3code.service`, `live.corecode.c3code.service` | `t3code.service`, `com.t3tools.t3code.service` |
+| Windows startup task | `c3code-<domain>-<user>`                         | `t3code-<domain>-<user>`                       |
+
+Two things are still shared:
+
+- **The `t3` command.** Both install scripts put it in `~/.local/bin`. The C3 Code installer stops
+  rather than replace T3 Code's; set `T3CODE_INSTALL_BIN_DIR` to install it elsewhere.
+- **`t3code://` links** open whichever app registered the link scheme last.
+
+To carry your T3 Code threads, projects, and settings over, either start C3 Code with
+`T3CODE_HOME=~/.t3`, or stop both apps and both background services and copy `~/.t3` to `~/.c3`.
+Never run both apps on one home at the same time.
+
 ## Providers
 
 Open **Settings → Providers** (web or desktop), select the environment, and enable the providers you use. Installation and sign-in always happen on the **environment's machine**.

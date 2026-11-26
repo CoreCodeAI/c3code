@@ -35,14 +35,14 @@ A managed policy lets an administrator set defaults, lock settings, and restrict
 
 Use **one** source per machine (having both a native policy and a policy file prevents C3 Code from starting):
 
-| OS          | Native policy                                                                     | Policy file (admin-writable only)                 |
-| ----------- | --------------------------------------------------------------------------------- | ------------------------------------------------- |
-| **macOS**   | Device configuration profile for `com.t3tools.t3code`                             | `/Library/Application Support/T3Code/policy.json` |
-| **Windows** | GPO template or `Policy` (`REG_SZ`) under `HKLM\SOFTWARE\Policies\T3Tools\T3Code` | `C:\Program Files\T3Code\policy.json`             |
-| **Linux**   | —                                                                                 | `/etc/t3code/policy.json`                         |
+| OS          | Native policy                                                                      | Policy file (admin-writable only)                 |
+| ----------- | ---------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **macOS**   | Device configuration profile for `live.corecode.c3code`                            | `/Library/Application Support/C3Code/policy.json` |
+| **Windows** | GPO template or `Policy` (`REG_SZ`) under `HKLM\SOFTWARE\Policies\CoreCode\C3Code` | `C:\Program Files\C3Code\policy.json`             |
+| **Linux**   | —                                                                                  | `/etc/c3code/policy.json`                         |
 
-- **macOS profile**: Generate `macos/t3code.mobileconfig` with `t3 policy templates <dir> --policy policy.json` (or `plutil -convert xml1 -o com.t3tools.t3code.plist policy.json`). Deploy as a single device profile (profiles cannot represent `null`; use a policy file if needed).
-- **Windows GPO**: Generate `windows/t3code.admx` and `windows/en-US/t3code.adml` with `t3 policy templates <dir>`, import into `PolicyDefinitions`/Intune under **Computer Configuration → Administrative Templates → C3 Code**, set **Organization**, run `gpupdate /target:computer /force`, and restart C3 Code.
+- **macOS profile**: Generate `macos/c3code.mobileconfig` with `t3 policy templates <dir> --policy policy.json` (or `plutil -convert xml1 -o live.corecode.c3code.plist policy.json`). Deploy as a single device profile (profiles cannot represent `null`; use a policy file if needed).
+- **Windows GPO**: Generate `windows/c3code.admx` and `windows/en-US/c3code.adml` with `t3 policy templates <dir>`, import into `PolicyDefinitions`/Intune under **Computer Configuration → Administrative Templates → C3 Code**, set **Organization**, run `gpupdate /target:computer /force`, and restart C3 Code.
 - **Windows registry**: Set `Policy` (`REG_SZ`) to single-line JSON (do not mix with GPO template values).
 
 ## Check what the server loaded
@@ -129,5 +129,5 @@ When `maxRuntimeMode` is set, users cannot modify provider launch settings (`bin
 ## What a policy does not cover
 
 - **Provider CLIs**: Restrict underlying CLIs with their own managed settings (e.g., Claude Code managed settings).
-- **WSL**: Managed Windows desktop disables its WSL environment; a server started manually inside WSL reads `/etc/t3code/policy.json` in that distro.
+- **WSL**: Managed Windows desktop disables its WSL environment; a server started manually inside WSL reads `/etc/c3code/policy.json` in that distro.
 - **Local admins / port forwarding**: Administrators can modify policies or C3 Code binaries, and users can still port-forward loopback sockets with external tools. Use OS/MDM controls for binary integrity and network isolation.

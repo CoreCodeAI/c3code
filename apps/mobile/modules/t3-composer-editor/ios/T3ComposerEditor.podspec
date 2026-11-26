@@ -3,8 +3,8 @@ Pod::Spec.new do |s|
   s.version        = '1.0.0'
   s.summary        = 'Native attributed composer editor for C3 Code mobile.'
   s.description    = 'UIKit-backed rich text composer with atomic skill and file tokens.'
-  s.author         = 'T3 Tools'
-  s.homepage       = 'https://t3tools.com'
+  s.author         = 'CoreCode'
+  s.homepage       = 'https://github.com/CoreCodeAI/c3code'
   s.platforms      = {
     :ios => '16.4',
   }

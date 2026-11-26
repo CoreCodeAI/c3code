@@ -79,25 +79,22 @@ const VARIANT_CONFIG = {
   development: {
     appName: "C3 Code Dev",
     scheme: "t3code-dev",
-    iosBundleIdentifier: "com.t3tools.t3code.dev",
-    androidPackage: "com.t3tools.t3code.dev",
-    relyingParty: "clerk.t3.codes",
+    iosBundleIdentifier: "live.corecode.c3code.dev",
+    androidPackage: "live.corecode.c3code.dev",
     assets: DEVELOPMENT_ASSETS,
   },
   preview: {
     appName: "C3 Code Preview",
     scheme: "t3code-preview",
-    iosBundleIdentifier: "com.t3tools.t3code.preview",
-    androidPackage: "com.t3tools.t3code.preview",
-    relyingParty: "clerk.t3.codes",
+    iosBundleIdentifier: "live.corecode.c3code.preview",
+    androidPackage: "live.corecode.c3code.preview",
     assets: PREVIEW_ASSETS,
   },
   production: {
     appName: "C3 Code",
     scheme: "t3code",
-    iosBundleIdentifier: "com.t3tools.t3code",
-    androidPackage: "com.t3tools.t3code",
-    relyingParty: "clerk.t3.codes",
+    iosBundleIdentifier: "live.corecode.c3code",
+    androidPackage: "live.corecode.c3code",
     assets: RELEASE_ASSETS,
   },
 } as const;
@@ -121,6 +118,13 @@ const variant = VARIANT_CONFIG[APP_VARIANT];
 const HOSTED_APP_HOST = repoEnv.T3CODE_HOSTED_APP_URL?.trim()
   ? new URL(repoEnv.T3CODE_HOSTED_APP_URL.trim()).host
   : null;
+// Sign-in and passkey domains (a Clerk frontend API host) and the Apple team come from the build:
+// C3 Code ships none, so a build that names none claims no domain and picks no team.
+const relyingPartyDomains = (repoEnv.T3CODE_CLERK_PASSKEY_RP_DOMAINS ?? "")
+  .split(",")
+  .map((domain) => domain.trim())
+  .filter((domain) => domain.length > 0);
+const appleTeamId = repoEnv.T3CODE_APPLE_TEAM_ID?.trim() || undefined;
 const iosBundleIdentifier = isIosPersonalTeamBuild
   ? personalTeamBundleIdentifier!
   : variant.iosBundleIdentifier;
@@ -237,7 +241,7 @@ const sharingPlugin: NonNullable<ExpoConfig["plugins"]>[number] = [
 
 const config: ExpoConfig = {
   name: variant.appName,
-  slug: "t3-code",
+  slug: "c3-code",
   platforms: ["ios", "android"],
   scheme: variant.scheme,
   version: repoEnv.T3CODE_MOBILE_VERSION ?? "2.3.0",
@@ -260,10 +264,12 @@ const config: ExpoConfig = {
     requireFullScreen: process.env.T3_SHOWCASE_CAPTURE_BUILD === "1",
     bundleIdentifier: iosBundleIdentifier,
     // Avoid Personal Team fallback: it cannot sign App Groups, Apple sign-in or push entitlements.
-    appleTeamId: "ARK85ZXQ4Z",
+    ...(appleTeamId === undefined ? {} : { appleTeamId }),
     associatedDomains: [
-      `applinks:${variant.relyingParty}`,
-      `webcredentials:${variant.relyingParty}`,
+      ...relyingPartyDomains.flatMap((domain) => [
+        `applinks:${domain}`,
+        `webcredentials:${domain}`,
+      ]),
       ...(HOSTED_APP_HOST ? [`applinks:${HOSTED_APP_HOST}`] : []),
     ],
     entitlements: {

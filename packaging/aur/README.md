@@ -1,8 +1,9 @@
 # AUR packaging
 
-This directory maintains the [`t3code-bin`](https://aur.archlinux.org/packages/t3code-bin) and
-[`t3code-nightly-bin`](https://aur.archlinux.org/packages/t3code-nightly-bin) packages. Both
-repackage the official x86_64 and ARM64 AppImages from GitHub Releases.
+This directory maintains the `c3code-bin` and `c3code-nightly-bin` AUR packages. Both repackage
+the x86_64 and ARM64 AppImages from C3 Code's GitHub Releases. They install as `c3code` beside
+T3 Code's `t3code-bin`, and neither provides nor conflicts with it. Neither package is on the AUR
+yet: publishing needs the AUR accounts and the `AUR_SSH_PRIVATE_KEY` secret.
 
 ## Publishing
 

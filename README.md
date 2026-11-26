@@ -34,6 +34,9 @@ machine or your phone.
   [trademark policy](./TRADEMARK.md) asks of forks.
 - **Links that stay here.** Install scripts, update checks, the model list, issue links, and
   `t3 triage` point at this repository, never at T3's site, npm package, or app store listings.
+- **Installs beside T3 Code.** C3 Code keeps its data in `~/.c3`, listens on port 3873, and has its
+  own app id (`live.corecode.c3code`) and service names, so both can run on one machine.
+  [Beside T3 Code](./docs/user/install.md#beside-t3-code) covers moving your T3 Code data over.
 
 [Privacy and network calls](./docs/user/privacy.md) lists every connection C3 Code still makes,
 and why.

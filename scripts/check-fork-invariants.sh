@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # Fails when a change breaks one of C3 Code's fork rules (see AGENTS.md, "This is a fork"):
-# no data collection, no hosted T3 service or project baked in, and no product link that sends
-# users to T3 Code's site, npm package, installer, or store listings. Runs on any checkout with git.
+# no data collection, no hosted T3 service or project baked in, no product link that sends
+# users to T3 Code's site, npm package, installer, or store listings, and no T3 Code app id,
+# home, port, or service name that would make the two collide on one machine. Runs on any
+# checkout with git. Each check prints how many files it read; a check that reads none fails,
+# so a renamed file cannot turn it into a silent pass.
 set -uo pipefail
 
 cd "$(git rev-parse --show-toplevel)" || exit 2
@@ -24,12 +27,38 @@ PRODUCT=(
   ':!**/*.graphql' ':!**/*.md'
 )
 
+# Counts the tracked files a pathspec names, and fails the check when it names none.
+checked_files() {
+  local description=$1
+  shift
+  local count
+  count=$(git ls-files -- "$@" | wc -l | tr -d '[:space:]')
+  printf '%5d files: %s\n' "$count" "$description"
+  if [ "$count" -eq 0 ]; then fail "$description: the pathspec matches no file" "$*"; fi
+}
+
 no_match() {
   local description=$1 pattern=$2
   shift 2
+  checked_files "$description" "$@"
   local hits
   hits=$(git grep -nIE "$pattern" -- "$@" 2>/dev/null | cut -c1-200)
   if [ -n "$hits" ]; then fail "$description" "$hits"; fi
+}
+
+# Fails unless every named file exists and contains the fixed string.
+must_contain() {
+  local description=$1 needle=$2
+  shift 2
+  checked_files "$description" "$@"
+  local file
+  for file in "$@"; do
+    if [ ! -f "$file" ]; then
+      fail "$description: $file is missing"
+    elif ! grep -qF -- "$needle" "$file"; then
+      fail "$description: $file no longer has $needle"
+    fi
+  done
 }
 
 # 1. No analytics, tracing, or crash-reporting SDKs among the dependencies.
@@ -80,6 +109,30 @@ no_match "a product link points at T3 Code" \
 no_match "a copied link defaults to T3's hosted app (app.t3.codes)" \
   'origin = DEFAULT_HOSTED_APP_URL|origin \?\? DEFAULT_HOSTED_APP_URL|HOSTED_APP_URL\?\.trim\(\) \|\| DEFAULT_HOSTED_APP_URL|Effect\.as\(DEFAULT_HOSTED_APP_URL\)|HOSTED_APP_HOST = "app\.t3\.codes"' \
   "${PRODUCT[@]}"
+
+# 9. C3 Code installs beside T3 Code: its own desktop app id, data home, port, and service names.
+no_match "the desktop app uses T3 Code's app id (com.t3tools.t3code)" \
+  'com\.t3tools\.(t3code|T3Code)' \
+  'apps/desktop/scripts/electron-launcher.mjs' 'scripts/build-desktop-artifact.ts' \
+  'apps/desktop/src/app/DesktopEnvironment.ts' 'apps/desktop/src/app/DesktopEarlyElectronStartup.ts' \
+  'apps/mobile/app.config.ts' 'packages/shared/src/managedPolicyFile.ts'
+must_contain "the desktop build and launcher use live.corecode.c3code" 'live.corecode.c3code' \
+  'apps/desktop/scripts/electron-launcher.mjs' 'scripts/build-desktop-artifact.ts' \
+  'apps/desktop/src/app/DesktopEnvironment.ts'
+no_match "the default home is T3 Code's ~/.t3" '"\.t3"' \
+  'apps/server/src/os-jank.ts' 'apps/desktop/src/app/DesktopStatePaths.ts'
+must_contain "the default home is ~/.c3" '".c3"' \
+  'apps/server/src/os-jank.ts' 'apps/desktop/src/app/DesktopStatePaths.ts'
+no_match "a default port is T3 Code's 3773" \
+  '(DEFAULT_PORT|DEFAULT_DESKTOP_BACKEND_PORT|DEFAULT_REMOTE_PORT) = 3773([^0-9]|$)' \
+  'apps/server/src/config.ts' 'apps/desktop/src/app/DesktopApp.ts' 'packages/ssh/src/tunnel.ts'
+must_contain "the server's default port is 3873" 'DEFAULT_PORT = 3873' 'apps/server/src/config.ts'
+must_contain "the background service has C3 Code's names" 'BOOT_SERVICE_NAME = "c3code"' \
+  'apps/server/src/cloud/bootService.ts'
+must_contain "the background service's launchd label is C3 Code's" \
+  'BOOT_SERVICE_LAUNCHD_LABEL = "live.corecode.c3code.service"' 'apps/server/src/cloud/bootService.ts'
+must_contain "the Windows service task is C3 Code's" 'SERVICE_TASK_DIRECTORY = "c3code"' \
+  'apps/server/src/serviceLauncher.ts'
 
 if [ "$failures" -gt 0 ]; then
   printf '\n%d fork invariant(s) broken. See "This is a fork" in AGENTS.md.\n' "$failures" >&2

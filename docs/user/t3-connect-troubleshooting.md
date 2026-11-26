@@ -82,4 +82,4 @@ Open an issue on [GitHub](https://github.com/CoreCodeAI/c3code/issues) with:
 - **Copy diagnostics** from the environment's **Details**
 - Output of `t3 connect status` on the host
 - Trace ID (if shown)
-- `~/.t3/userdata/logs/relay-client.ndjson` (tunnel tokens are already stripped)
+- `~/.c3/userdata/logs/relay-client.ndjson` (tunnel tokens are already stripped)

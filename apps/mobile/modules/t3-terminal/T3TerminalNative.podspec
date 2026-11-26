@@ -7,9 +7,9 @@ Pod::Spec.new do |s|
   s.version = package['version']
   s.summary = 'Native terminal surface for C3 Code mobile.'
   s.description = 'Native terminal surface bridge used by the C3 Code React Native app.'
-  s.homepage = 'https://t3tools.com'
+  s.homepage = 'https://github.com/CoreCodeAI/c3code'
   s.license = { :type => 'UNLICENSED' }
-  s.author = { 'T3 Tools' => 'hello@t3tools.com' }
+  s.author = { 'CoreCode' => 'hello@corecode.live' }
   s.platforms = { :ios => '16.1' }
   s.source = { :path => '.' }
   s.source_files = 'ios/**/*.{h,m,mm,swift}'

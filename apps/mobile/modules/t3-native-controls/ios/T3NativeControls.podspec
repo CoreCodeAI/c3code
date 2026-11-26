@@ -3,8 +3,8 @@ Pod::Spec.new do |s|
   s.version        = '1.0.0'
   s.summary        = 'Native UIKit controls for C3 Code mobile.'
   s.description    = 'UIKit-backed controls that match native iOS navigation chrome.'
-  s.author         = 'T3 Tools'
-  s.homepage       = 'https://t3tools.com'
+  s.author         = 'CoreCode'
+  s.homepage       = 'https://github.com/CoreCodeAI/c3code'
   s.platforms      = {
     :ios => '18.0',
   }

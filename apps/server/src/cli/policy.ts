@@ -154,9 +154,9 @@ const templatesCommand = Command.make("templates", {
       }
       const outputDir = yield* expandHomePath(directory);
       const files = [
-        [path.join(outputDir, "windows", "t3code.admx"), windowsAdmx()],
-        [path.join(outputDir, "windows", "en-US", "t3code.adml"), windowsAdml()],
-        [path.join(outputDir, "macos", "t3code.mobileconfig"), profile.profile],
+        [path.join(outputDir, "windows", "c3code.admx"), windowsAdmx()],
+        [path.join(outputDir, "windows", "en-US", "c3code.adml"), windowsAdml()],
+        [path.join(outputDir, "macos", "c3code.mobileconfig"), profile.profile],
       ] as const;
       for (const [file, contents] of files) {
         yield* fs.makeDirectory(path.dirname(file), { recursive: true });

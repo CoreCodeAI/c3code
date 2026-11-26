@@ -22,7 +22,7 @@ See [Install C3 Code](./install.md#command-line) for installation (`curl -fsSL h
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `t3 service`                  | Manage the background service (`install`, `status`, `restart`, `uninstall`, `protect [--undo]`). See [Background service](./background-service.md). |
 | `t3 update [version]`         | Update `t3` and the service (`--channel nightly`, `--allow-downgrade`, `--yes`).                                                                    |
-| `t3 install` / `t3 uninstall` | Install or remove the `t3` launcher and background service (keeps `~/.t3/userdata`).                                                                |
+| `t3 install` / `t3 uninstall` | Install or remove the `t3` launcher and background service (keeps `~/.c3/userdata`).                                                                |
 
 ## Threads, projects, and workflows
 

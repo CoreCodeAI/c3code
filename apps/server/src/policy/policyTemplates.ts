@@ -230,7 +230,7 @@ const admxElement = (element: Element) => {
 export function windowsAdmx(): string {
   const body = policies().map((policy) => {
     const head = `<policy name="${policy.id}" class="Machine" displayName="$(string.${policy.id})" explainText="$(string.${policy.id}_Help)" key="${ADMX_KEY}"`;
-    const common = `<parentCategory ref="T3Code" />\n      <supportedOn ref="SUPPORTED_T3Code" />`;
+    const common = `<parentCategory ref="C3Code" />\n      <supportedOn ref="SUPPORTED_C3Code" />`;
     if (policy.toggle !== undefined) {
       return `    ${head} valueName="${policy.toggle}">
       ${common}
@@ -249,16 +249,16 @@ export function windowsAdmx(): string {
   return `<?xml version="1.0" encoding="utf-8"?>
 <policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
   <policyNamespaces>
-    <target prefix="t3code" namespace="T3Tools.Policies.T3Code" />
+    <target prefix="c3code" namespace="CoreCode.Policies.C3Code" />
   </policyNamespaces>
   <resources minRequiredRevision="1.0" />
   <supportedOn>
     <definitions>
-      <definition name="SUPPORTED_T3Code" displayName="$(string.SUPPORTED_T3Code)" />
+      <definition name="SUPPORTED_C3Code" displayName="$(string.SUPPORTED_C3Code)" />
     </definitions>
   </supportedOn>
   <categories>
-    <category name="T3Code" displayName="$(string.T3Code)" />
+    <category name="C3Code" displayName="$(string.C3Code)" />
   </categories>
   <policies>
 ${body.join("\n")}
@@ -282,8 +282,8 @@ const presentationElement = (element: Element) => {
 /** The en-US strings and dialog layouts for `windowsAdmx`. */
 export function windowsAdml(): string {
   const strings: Array<readonly [string, string]> = [
-    ["T3Code", "C3 Code"],
-    ["SUPPORTED_T3Code", "C3 Code with managed policy support"],
+    ["C3Code", "C3 Code"],
+    ["SUPPORTED_C3Code", "C3 Code with managed policy support"],
   ];
   const presentations: Array<string> = [];
   for (const policy of policies()) {
@@ -349,7 +349,7 @@ const nullPath = (
   return undefined;
 };
 
-/** A device configuration profile that installs `document` for `com.t3tools.t3code`. */
+/** A device configuration profile that installs `document` for `live.corecode.c3code`. */
 export function macosProfile(
   document: ManagedPolicyDocument,
   uuids: { readonly profile: string; readonly payload: string },
@@ -370,8 +370,8 @@ export function macosProfile(
     PayloadContent: [
       {
         PayloadDisplayName: "C3 Code policy",
-        PayloadIdentifier: `com.t3tools.t3code.policy.${uuids.payload}`,
-        PayloadType: "com.t3tools.t3code",
+        PayloadIdentifier: `live.corecode.c3code.policy.${uuids.payload}`,
+        PayloadType: "live.corecode.c3code",
         PayloadUUID: uuids.payload,
         PayloadVersion: 1,
         ...document,
@@ -379,7 +379,7 @@ export function macosProfile(
     ],
     PayloadDescription: "Configures C3 Code for every user on this Mac.",
     PayloadDisplayName: `C3 Code policy for ${document.organization}`,
-    PayloadIdentifier: `com.t3tools.t3code.policy`,
+    PayloadIdentifier: `live.corecode.c3code.policy`,
     PayloadOrganization: document.organization,
     PayloadScope: "System",
     PayloadType: "Configuration",

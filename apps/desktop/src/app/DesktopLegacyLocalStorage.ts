@@ -21,7 +21,8 @@ export class DesktopLegacyLocalStorage extends Context.Service<
 >()("@t3tools/desktop/app/DesktopLegacyLocalStorage") {}
 
 const MARKER_FILE_NAME = "v1-local-storage-imported";
-const V1_PROFILE_NAMES = ["C3 Code (Alpha)", "t3code"];
+// T3 Code's "t3code" profile is left out on purpose: C3 Code never imports its browser storage.
+const V1_PROFILE_NAMES = ["C3 Code (Alpha)"];
 
 const make = Effect.gen(function* () {
   const environment = yield* DesktopEnvironment.DesktopEnvironment;

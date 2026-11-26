@@ -29,18 +29,28 @@ it.each(["prod", ""])("rejects APP_VARIANT=%j before selecting production IDs", 
 });
 
 it.each([
-  [undefined, "com.t3tools.t3code"],
-  ["development", "com.t3tools.t3code.dev"],
-  ["preview", "com.t3tools.t3code.preview"],
-  ["production", "com.t3tools.t3code"],
-])("keeps the iOS and Android identifiers for APP_VARIANT=%j", async (value, identifier) => {
-  const config = await loadConfig(value);
-  expect(config.ios?.bundleIdentifier).toBe(identifier);
-  expect(config.android?.package).toBe(identifier);
-  expect(appleAppSiteAssociation.applinks.details[0]?.appIDs).toContain(
-    `${config.ios?.appleTeamId}.${identifier}`,
-  );
-  expect(assetLinks.map((link) => link.target.package_name)).toContain(identifier);
+  [undefined, "live.corecode.c3code"],
+  ["development", "live.corecode.c3code.dev"],
+  ["preview", "live.corecode.c3code.preview"],
+  ["production", "live.corecode.c3code"],
+])(
+  "uses C3 Code's own iOS and Android identifiers for APP_VARIANT=%j",
+  async (value, identifier) => {
+    const config = await loadConfig(value);
+    expect(config.ios?.bundleIdentifier).toBe(identifier);
+    expect(config.android?.package).toBe(identifier);
+  },
+);
+
+it("claims no sign-in domain or Apple team unless the build names them", async () => {
+  const config = await loadConfig("production");
+  expect(config.ios?.appleTeamId).toBeUndefined();
+  expect(config.ios?.associatedDomains).toEqual([]);
+});
+
+it("lists no app in the web app's association files", () => {
+  expect(appleAppSiteAssociation.applinks.details).toEqual([]);
+  expect(assetLinks).toEqual([]);
 });
 
 it("claims no hosted app's thread links unless the build names one", async () => {
