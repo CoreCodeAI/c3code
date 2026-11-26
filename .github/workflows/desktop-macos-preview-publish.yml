@@ -31,6 +31,7 @@ jobs:
   resolve:
     name: Verify preview eligibility
     if: >-
+      github.repository == 'pingdotgg/t3code' &&
       github.event_name == 'workflow_run' &&
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success'
@@ -309,7 +310,7 @@ jobs:
       clerk_cli_oauth_client_id: ${{ needs.resolve.outputs.clerk_cli_oauth_client_id }}
       relay_url: ${{ needs.resolve.outputs.relay_url }}
       label: macOS arm64 preview
-      runner: blacksmith-12vcpu-macos-26
+      runner: macos-26
       platform: mac
       target: dmg
       arch: arm64
@@ -326,8 +327,8 @@ jobs:
     name: Publish anonymous download
     needs: [resolve, build]
     if: needs.resolve.outputs.eligible == 'true' && needs.build.result == 'success'
-    runs-on: blacksmith-8vcpu-ubuntu-2404
-    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     # Its own group, so a publish never cancels a newer commit's signing job
     # (they would share the build group) and is never cancelled mid-upload.
     # preview_eligible's head check keeps a superseded publish from landing.
@@ -500,6 +501,7 @@ jobs:
     # the build consumed it withdraws the request and drops any older
     # download too.
     if: >-
+      github.repository == 'pingdotgg/t3code' &&
       github.event_name == 'pull_request_target' &&
       (github.event.action == 'closed' ||
       (github.event.action == 'unlabeled' && github.event.label.name == 'preview:mac'))

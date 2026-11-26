@@ -13,7 +13,7 @@ import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
-import { FetchHttpClient, HttpClient } from "effect/http";
+import { HttpClient } from "effect/http";
 
 import * as ProcessRunner from "../processRunner.ts";
 
@@ -127,6 +127,16 @@ export const make = Effect.fn("NpmRelease.make")(function* () {
   });
 });
 
-export const layer = Layer.effect(NpmRelease, make()).pipe(
-  Layer.provide([ProcessRunner.layer, FetchHttpClient.layer]),
+// The `t3` package on npm is T3 Code's, so a lookup there would offer its releases as C3 updates.
+// Servers do not advertise npmReleaseLookup; this answers an older client that asks anyway.
+export const layer = Layer.succeed(
+  NpmRelease,
+  NpmRelease.of({
+    get: Effect.fn("NpmRelease.get")(function* () {
+      return yield* new ServerNpmReleaseError({
+        reason:
+          "C3 Code is not published to npm. Run `t3 update --channel <track>` on this host to switch tracks.",
+      });
+    }),
+  }),
 );

@@ -70,3 +70,5 @@ anything.
 - [03 · Release](./operations/03_release.md)
 - [04 · Observability](./operations/04_observability.md)
 - [05 · Relay observability](./operations/05_relay-observability.md)
+- [06 · Agent maintenance](./operations/06_agent-maintenance.md)
+- [07 · Review standards](./operations/07_review-standards.md)

@@ -20,6 +20,38 @@ write them.
 
 `scripts/check-fork-invariants.sh` checks these in CI.
 
+## How PRs are reviewed
+
+Agents triage, review and merge PRs here ([agent maintenance](docs/operations/06_agent-maintenance.md)).
+A maintainer clears what they stop on.
+
+<a id="look-for-harm-first"></a>
+
+### Look for harm first
+
+Before any PR is run, its diff is read for anything that reaches past its stated goal. Any one of
+these stops the review until a maintainer has looked:
+
+- It changes `.github/` (workflows, actions, permissions), a release, install or publish script,
+  `packaging/`, or a Dockerfile.
+- It adds a network address, an upload, telemetry, or sends a credential, token, cookie or file
+  anywhere it did not go before.
+- It reads or writes a credential file, keychain entry, or agent config the goal does not need.
+- It adds a dependency, an install script, a binary, a minified or encoded blob, or code built from
+  a string at run time.
+- It adds a relay, reseller, or affiliate address.
+
+The review says which line stopped it. A stopped PR's code is not run on a machine with real
+accounts until a maintainer has cleared it.
+
+<a id="closed-unreviewed"></a>
+
+### Closed without a full review
+
+A PR is closed with a short reason, without being run, when it changes a decision a maintainer made,
+resubmits a PR closed for its idea with nothing new to answer the reason, or is one of several
+near-identical PRs opened within minutes.
+
 ## Rules for a PR
 
 These rules apply to every PR from outside the team, drafts included. A PR that follows them can
@@ -63,7 +95,10 @@ Name the model and tool that wrote the code in the PR body.
 ## Bans
 
 Spam, automation abuse, repeated pings, fights over a closure, and second accounts to get around a
-rule get an account banned. A banned account's issues and PRs are closed when they are opened.
+rule get an account banned. So does three or more PRs closed as low-value with fewer than a third
+merged, resubmitting after an explicit rejection twice, or hiding a change outside a PR's goal. An
+agent proposes a ban with the PR numbers; a maintainer decides. A banned account's issues and PRs
+are closed when they are opened.
 
 <a id="closure-and-reconsideration"></a>
 

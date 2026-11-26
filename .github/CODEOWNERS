@@ -1,0 +1,14 @@
+# The files that guard C3 Code's agent maintenance. A change to any of them needs the maintainer's
+# approval, so an agent can never loosen its own guard. Every path here exists only in this fork, so
+# an upstream sync never touches them. See docs/operations/06_agent-maintenance.md#the-merge-gate.
+
+/.github/CODEOWNERS                              @Gyarados4157
+/.github/workflows/c3-fork-invariants.yml        @Gyarados4157
+/scripts/check-fork-invariants.sh                @Gyarados4157
+/scripts/fork-workflows.ts                       @Gyarados4157
+/scripts/harm-report.ts                          @Gyarados4157
+/scripts/upstream-sync.sh                        @Gyarados4157
+/.agents/skills/pr-review/                       @Gyarados4157
+/.agents/skills/upstream-sync/                   @Gyarados4157
+/docs/operations/06_agent-maintenance.md         @Gyarados4157
+/docs/operations/07_review-standards.md          @Gyarados4157
