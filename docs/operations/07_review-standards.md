@@ -15,8 +15,8 @@ what they printed. A check that was not run is listed as not run, never left out
    [bug-fix proof](../internals/15_testing.md).
 2. **The changed checks.** `vp run check:changed`, plus `vp test run <files>` for each test the
    change touches. CI runs the full suite; a reviewer does not rerun it.
-3. **The fork invariants.** `bash scripts/check-fork-invariants.sh` passes, which includes
-   `node scripts/fork-workflows.ts`. A new outbound connection has its row in
+3. **The fork invariants.** `vp run fork:check` passes: `check-fork-invariants.sh`, `fork-brand.ts`
+   and `fork-workflows.ts`, the same three the Fork invariants workflow runs. A new outbound connection has its row in
    [Privacy and network calls](../user/privacy.md).
 4. **Real use for what a user sees.** A change in the web or desktop UI gets one pass in a running
    app through `test-t3-app`, with before and after screenshots on the PR. A mobile change uses

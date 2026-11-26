@@ -9,7 +9,7 @@ You can think of C3 Code as an open source "bring-your-own-subscription" alterna
 C3 Code is CoreCode's unofficial fork of [T3 Code](https://github.com/pingdotgg/t3code), not affiliated with T3 Tools, Inc. Three rules bind every change, and `scripts/check-fork-invariants.sh` checks them in CI:
 
 - **No data collection.** Never add analytics, crash or error reporting, usage events, install or device IDs, or a call home. A new network call is allowed only when the user asked for it or it serves the user directly, and it must be listed in [docs/user/privacy.md](docs/user/privacy.md).
-- **No T3 branding.** Use the C3 name and mark. "T3 Code" stays only where a fact is about the upstream project or its trademarks. Internal identifiers (`com.t3tools.*`, `t3code://`, `~/.t3`, `T3CODE_*`, the `t3` command, `@t3tools/*`) stay, so the app keeps working with existing data and settings.
+- **No T3 branding.** Use the C3 name and mark. "T3 Code" stays only where a fact is about the upstream project or its trademarks. C3 Code installs beside T3 Code with its own app id (`live.corecode.c3code`), home (`~/.c3`), port (3873) and service names; `scripts/check-fork-invariants.sh` fails if T3's return. The `t3` command, the `t3code://` scheme, `T3CODE_*` variables, `@t3tools/*` packages and the per-worktree dev `.t3` stay, so upstream merges stay small.
 - **Links stay here.** Install scripts, releases, update checks, issues, and docs point at `CoreCodeAI/c3code`, never at T3's site, npm package, or store listings.
 
 ## What makes C3 Code special?
@@ -56,7 +56,7 @@ Of note: Most C3 Code contributions will come from C3 Code itself, often control
 ## The three ways to hurt yourself
 
 1. **Killing by pattern.** Never `pkill -f`, `pgrep | kill`, or `kill` a PID you found by matching a name, path, or worktree string. Your own agent process has this worktree's path in its argv, and this machine runs several other dev servers at once. Kill only a PID you captured at spawn, or the owner of your port from `ss -H -ltnp` after confirming `/proc/<pid>/cwd` is your worktree.
-2. **Writing to the live install.** `~/.t3/userdata` is the developer's real C3 Code database, in use while you work. Reading or copying from it is fine. Never start a server against it, never open it read-write, never clean it up.
+2. **Writing to the live install.** `~/.c3/userdata` is the developer's real C3 Code database, in use while you work. Reading or copying from it is fine. Never start a server against it, never open it read-write, never clean it up.
 3. **Baking in origins.** Never set `VITE_HTTP_URL` or `VITE_WS_URL` for dev. Dev is single-origin and Vite proxies `/api`, `/ws`, `/oauth`, and `/.well-known`. Setting them bakes localhost into the bundle and silently breaks every remote browser.
 
 ## Hit every surface

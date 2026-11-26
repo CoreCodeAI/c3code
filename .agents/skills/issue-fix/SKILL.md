@@ -33,7 +33,7 @@ In a worktree from `origin/main` on branch `fix/<issue>-<topic>`:
 2. Fix the cause, not the wording of the error. Grep for the same pattern in every sibling (other
    providers, clients, entry points) and fix those in the same change.
 3. Walk [Hit every surface](../../../AGENTS.md#hit-every-surface).
-4. Run `vp run check:changed`, the touched tests, `bash scripts/check-fork-invariants.sh`, and a
+4. Run `vp run check:changed`, the touched tests, `vp run fork:check`, and a
    real-app pass for anything a user sees.
 
 If the fix turns out to change how the product behaves, stop the same way with the decision it

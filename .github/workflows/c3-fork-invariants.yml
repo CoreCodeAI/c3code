@@ -1,8 +1,9 @@
 name: Fork invariants
 
 # C3 Code's promises as a fork: no usage data, no T3 Code branding, no links to T3's
-# services. scripts/check-fork-invariants.sh holds the checks; this runs it on every change,
-# including upstream syncs, so a merge that brings collection back fails here.
+# services, no T3 Code app identity, and workflows that run on this repository's runners.
+# scripts/check-fork-invariants.sh, fork-brand.ts and fork-workflows.ts hold the checks; this
+# runs them on every change, including upstream syncs, so a merge that undoes one fails here.
 
 on:
   pull_request:
@@ -22,5 +23,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: package.json
+
       - name: Check fork invariants
         run: bash scripts/check-fork-invariants.sh
+
+      - name: Check user-visible text says C3
+        if: ${{ !cancelled() }}
+        run: node scripts/fork-brand.ts
+
+      - name: Check workflows fit the fork
+        if: ${{ !cancelled() }}
+        run: node scripts/fork-workflows.ts
