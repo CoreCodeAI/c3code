@@ -24,3 +24,10 @@ its translations in every other language at the next `i18n:generate`. Evidence: 
 **Search tests and fixtures for the old name, not only shipped code.** A test title still called a
 C3 tool a T3 tool after the rename, and only the brand check found it. Evidence: 794e72cf5. Seen 1×
 (2026-11-26).
+
+## Checks
+
+**Say what a check runs only after running it.** The review standards said
+`check-fork-invariants.sh` included `fork-workflows.ts`; it never did, so a reviewer following them
+would have skipped the workflow check. Evidence: 7278cc051, fixed in 4ac320624 with
+`vp run fork:check`. Seen 1× (2026-11-26).
