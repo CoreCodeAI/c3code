@@ -29,6 +29,9 @@ For each conflicted file, read both sides and the fork's reason for its side
   T3 extended the removed code, drop the extension too.
 - **Branding.** Keep C3 wording and links to `CoreCodeAI/c3code`. Take T3's new logic around them.
 - **App identity.** Keep the fork's ids, home directory, port and service names.
+- **Translation catalogs.** The script merges them by key. A key it reports as changed on both
+  sides keeps the fork's value; `fork-brand.ts --write` below rebuilds every catalog from the
+  merged source.
 - **Workflows.** Take T3's version, then `node scripts/fork-workflows.ts --write`. Re-apply a fork
   edit only if `git diff <last-sync>..origin/main -- <file>` shows one beyond the rewrite.
 - **Everything else.** Take T3's version unless the fork changed the same lines for a reason above.

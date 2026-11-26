@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Starts a sync of T3 Code into C3 Code: a `sync/upstream-<date>` branch from origin/main with
 # upstream/main merged in, then the fork's mechanical rewrites applied again. A conflicting
-# workflow the fork only rewrote takes T3's version and is rewritten again; every other conflict is
-# left for the agent, which follows .agents/skills/upstream-sync/SKILL.md.
+# workflow the fork only rewrote takes T3's version and is rewritten again; a conflicting
+# translation catalog is merged by key (scripts/merge-catalog.ts); every other conflict is left for
+# the agent, which follows .agents/skills/upstream-sync/SKILL.md.
 #
 # Exit 0: merged and committed. 2: conflicts remain (listed). 3: nothing to sync. 1: error.
 # C3_SYNC_BASE overrides the base (default origin/main), to rehearse a sync on an unpushed branch.
@@ -80,6 +81,9 @@ while IFS= read -r path; do
         fi
         echo "Took T3's $path; the rewrite below adapts it."
       fi
+      ;;
+    apps/*/src/i18n/translations/*.json)
+      if node scripts/merge-catalog.ts "$path"; then git add "$path"; fi
       ;;
   esac
 done < <(git diff --name-only --diff-filter=U)

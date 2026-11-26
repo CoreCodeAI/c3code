@@ -7,6 +7,7 @@
 /scripts/check-fork-invariants.sh                @Gyarados4157
 /scripts/fork-workflows.ts                       @Gyarados4157
 /scripts/harm-report.ts                          @Gyarados4157
+/scripts/merge-catalog.ts                        @Gyarados4157
 /scripts/upstream-sync.sh                        @Gyarados4157
 /.agents/skills/pr-review/                       @Gyarados4157
 /.agents/skills/upstream-sync/                   @Gyarados4157
